@@ -1,19 +1,23 @@
 {
-  "name": "db",
+  "name": "@earthly-land/db",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Database package for Earthly Land",
+  "main": "src/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "generate": "drizzle-kit generate",
+    "push": "drizzle-kit push",
+    "up": "drizzle-kit up",
+    "migrate": "drizzle-kit migrate"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "drizzle-orm": "^0.31.2",
-    "postgres": "^3.4.4"
+    "drizzle-orm": "0.31.2",
+    "pg": "^8.12.0"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.22.8"
+    "@types/pg": "^8.11.6",
+    "drizzle-kit": "0.22.8"
   }
 }
