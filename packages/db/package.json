@@ -7,7 +7,9 @@
     "generate": "drizzle-kit generate",
     "push": "drizzle-kit push",
     "up": "drizzle-kit up",
-    "migrate": "drizzle-kit migrate"
+    "migrate": "drizzle-kit migrate",
+    "lint": "eslint \"src/**/*.{js,ts,svelte}\"",
+    "format": "prettier --write \"src/**/*.{js,ts,svelte,json,md}\""
   },
   "keywords": [],
   "author": "",
@@ -18,6 +20,8 @@
   },
   "devDependencies": {
     "@types/pg": "^8.11.6",
-    "drizzle-kit": "0.22.8"
+    "drizzle-kit": "0.22.8",
+    "@earthly-land/eslint": "workspace:*",
+    "@earthly-land/prettier": "workspace:*"
   }
 }

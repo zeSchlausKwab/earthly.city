@@ -1,25 +1,25 @@
 <script lang="ts">
-	import '../app.postcss';
-	import DiscoverySidebar from '$lib/components/DiscoverySidebar.svelte';
-	import FocusedSidebar from '$lib/components/FocusedSidebar.svelte';
-	import Header from '$lib/components/Header.svelte';
+	import '../app.postcss'
+	import DiscoverySidebar from '$lib/components/DiscoverySidebar.svelte'
+	import FocusedSidebar from '$lib/components/FocusedSidebar.svelte'
+	import Header from '$lib/components/Header.svelte'
 </script>
 
-<div class="flex flex-col h-screen">
+<div class="flex h-screen flex-col">
 	<Header />
 
 	<div class="flex flex-1 overflow-hidden">
-		<aside class="w-1/4 bg-gray-100 p-4 overflow-y-auto">
-			<h2 class="text-xl font-semibold mb-4">Discovery</h2>
+		<aside class="w-1/4 overflow-y-auto bg-gray-100 p-4">
+			<h2 class="mb-4 text-xl font-semibold">Discovery</h2>
 			<DiscoverySidebar />
 		</aside>
 
-		<main class="flex-1 p-4 overflow-y-auto">
+		<main class="flex-1 overflow-y-auto p-4">
 			<slot />
 		</main>
 
-		<aside class="w-1/4 bg-gray-100 p-4 overflow-y-auto">
-			<h2 class="text-xl font-semibold mb-4">Focused Collections</h2>
+		<aside class="w-1/4 overflow-y-auto bg-gray-100 p-4">
+			<h2 class="mb-4 text-xl font-semibold">Focused Collections</h2>
 			<FocusedSidebar />
 		</aside>
 	</div>

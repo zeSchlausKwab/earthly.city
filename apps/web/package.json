@@ -1,5 +1,5 @@
 {
-	"name": "web",
+	"name": "@earthly-land/web",
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "vite dev",
@@ -8,8 +8,8 @@
 		"test": "npm run test:integration && npm run test:unit",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"lint": "prettier --check . && eslint .",
-		"format": "prettier --write .",
+		"lint": "pnpm run -r --no-bail lint",
+		"format": "pnpm run -r --no-bail format",
 		"test:integration": "playwright test",
 		"test:unit": "vitest"
 	},
@@ -26,12 +26,13 @@
 		"@types/eslint": "^8.56.10",
 		"@types/leaflet": "^1.9.12",
 		"autoprefixer": "^10.4.19",
-		"eslint": "^9.6.0",
+		"@earthly-land/eslint": "workspace:*",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-svelte": "^2.41.0",
+		"eslint-plugin-svelte3": "^4.0.0",
 		"globals": "^15.7.0",
 		"postcss": "^8.4.39",
-		"prettier": "^3.3.2",
+		"@earthly-land/prettier": "workspace:*",
 		"prettier-plugin-svelte": "^3.2.5",
 		"prettier-plugin-tailwindcss": "^0.6.5",
 		"svelte": "5.0.0-next.169",

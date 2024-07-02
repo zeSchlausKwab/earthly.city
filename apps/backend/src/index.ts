@@ -9,38 +9,52 @@ fastify.register(cors, {
 });
 
 // Prefix all routes with '/api'
-fastify.register(async (fastify) => {
-  fastify.get('/', async (request, reply) => {
-    return { hello: 'world' };
-  });
+fastify.register(
+  async (fastify) => {
+    fastify.get('/', async (request, reply) => {
+      return { hello: 'world' };
+    });
 
-  fastify.get('/features', async (request, reply) => {
-    const features = await db.select().from(schema.features).execute();
-    return features;
-  });
+    fastify.get('/features', async (request, reply) => {
+      const features = await db.select().from(schema.features).execute();
+      return features;
+    });
 
-  fastify.put<{ Params: { id: string }, Body: { kind: number; pubkey: string; content: any; tags: any[] } }>('/features/:id', async (request, reply) => {
-    const { id } = request.params;
-    const { kind, pubkey, content, tags } = request.body;
-    const updatedFeature = await db.update(schema.features)
-      .set({ kind, pubkey, content, tags })
-      .where(eq(schema.features.id, parseInt(id)))
-      .returning()
-      .execute();
-    return updatedFeature[0];
-  });
+    fastify.put<{
+      Params: { id: string };
+      Body: { kind: number; pubkey: string; content: any; tags: any[] };
+    }>('/features/:id', async (request, reply) => {
+      const { id } = request.params;
+      const { kind, pubkey, content, tags } = request.body;
+      const updatedFeature = await db
+        .update(schema.features)
+        .set({ kind, pubkey, content, tags })
+        .where(eq(schema.features.id, parseInt(id)))
+        .returning()
+        .execute();
+      return updatedFeature[0];
+    });
 
-  fastify.post<{ Body: { kind: number; pubkey: string; content: any; tags: any[] } }>('/features', async (request, reply) => {
-    const { kind, pubkey, content, tags } = request.body;
-    const newFeature = await db.insert(schema.features).values({
-      kind,
-      pubkey,
-      content,
-      tags,
-    }).returning().execute();
-    return newFeature[0];
-  });
-}, { prefix: '/api' });
+    fastify.post<{ Body: { kind: number; pubkey: string; content: any; tags: any[] } }>(
+      '/features',
+      async (request, reply) => {
+        const { kind, pubkey, content, tags } = request.body;
+        const newFeature = await db
+          .insert(schema.features)
+          .values({
+            kind,
+            pubkey,
+            content,
+            tags,
+          })
+          .returning()
+          .execute();
+        return newFeature[0];
+      }
+    );
+  },
+  { prefix: '/api' }
+);
 
 const start = async () => {
   try {

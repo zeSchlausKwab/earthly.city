@@ -5,11 +5,11 @@ export default {
   out: './drizzle',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL || 'postgresql://earthly:earthlypassword@localhost:5432/earthly_db',
+    url:
+      process.env.DATABASE_URL || 'postgresql://earthly:earthlypassword@localhost:5432/earthly_db',
   },
   migrations: {
     table: 'migrations',
-    schema: 'public'
-  }
+    schema: 'public',
+  },
 } satisfies Config;
-

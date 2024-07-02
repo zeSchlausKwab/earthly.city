@@ -1,5 +1,5 @@
 {
-  "name": "prettier",
+  "name": "@earthly-land/prettier",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
