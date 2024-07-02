@@ -9,6 +9,8 @@
     "lint": "pnpm run --parallel -r lint",
     "format": "pnpm run --parallel -r format",
     "db:generate": "pnpm --filter @earthly-land/db generate",
+    "db:push": "pnpm --filter @earthly-land/db push",
+    "db:up": "pnpm --filter @earthly-land/db up",
     "db:migrate": "pnpm --filter @earthly-land/db migrate"
   },
   "keywords": [],
