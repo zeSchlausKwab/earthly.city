@@ -1,56 +1,26 @@
-<script>
-	import '../app.css';
-	import Header from './Header.svelte';
-	import './styles.css';
+<script lang="ts">
+	import '../app.postcss';
+	import DiscoverySidebar from '$lib/components/DiscoverySidebar.svelte';
+	import FocusedSidebar from '$lib/components/FocusedSidebar.svelte';
+	import Header from '$lib/components/Header.svelte';
 </script>
 
-<div class="app">
-	<Header></Header>
+<div class="flex flex-col h-screen">
+	<Header />
 
-	<main>
-		<slot></slot>
-	</main>
+	<div class="flex flex-1 overflow-hidden">
+		<aside class="w-1/4 bg-gray-100 p-4 overflow-y-auto">
+			<h2 class="text-xl font-semibold mb-4">Discovery</h2>
+			<DiscoverySidebar />
+		</aside>
 
-	<footer>
-		<p>visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to learn SvelteKit</p>
-	</footer>
+		<main class="flex-1 p-4 overflow-y-auto">
+			<slot />
+		</main>
+
+		<aside class="w-1/4 bg-gray-100 p-4 overflow-y-auto">
+			<h2 class="text-xl font-semibold mb-4">Focused Collections</h2>
+			<FocusedSidebar />
+		</aside>
+	</div>
 </div>
-
-<slot></slot>
-
-<style>
-	.app {
-		display: flex;
-		flex-direction: column;
-		min-height: 100vh;
-	}
-
-	main {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		padding: 1rem;
-		width: 100%;
-		max-width: 64rem;
-		margin: 0 auto;
-		box-sizing: border-box;
-	}
-
-	footer {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		padding: 12px;
-	}
-
-	footer a {
-		font-weight: bold;
-	}
-
-	@media (min-width: 480px) {
-		footer {
-			padding: 12px 0;
-		}
-	}
-</style>
