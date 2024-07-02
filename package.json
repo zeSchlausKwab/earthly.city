@@ -1,0 +1,13 @@
+{
+  "name": "earthly-land",
+  "version": "1.0.0",
+  "description": "A social geojson editor built on nostr",
+  "scripts": {
+    "dev": "pnpm run --parallel -r dev",
+    "build": "pnpm run --parallel -r build",
+    "start": "pnpm run --parallel -r start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
