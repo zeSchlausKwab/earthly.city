@@ -4,6 +4,8 @@
   "description": "A social geojson editor built on nostr",
   "scripts": {
     "dev": "pnpm run --parallel -r dev",
+    "relay:start": "./scripts/start_relay",
+    "relay:stop": "./scripts/stop_relay",
     "build": "pnpm run --parallel -r build",
     "start": "pnpm run --parallel -r start",
     "lint": "pnpm run --parallel -r lint",

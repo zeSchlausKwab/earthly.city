@@ -1,0 +1,5 @@
+#!/bin/bash
+cd apps/relay
+./scripts/start
+cd ../..
+
