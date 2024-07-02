@@ -5,7 +5,11 @@
   "scripts": {
     "dev": "pnpm run --parallel -r dev",
     "build": "pnpm run --parallel -r build",
-    "start": "pnpm run --parallel -r start"
+    "start": "pnpm run --parallel -r start",
+    "lint": "pnpm run --parallel -r lint",
+    "format": "pnpm run --parallel -r format",
+    "db:generate": "pnpm --filter @earthly-land/db generate",
+    "db:migrate": "pnpm --filter @earthly-land/db migrate"
   },
   "keywords": [],
   "author": "",

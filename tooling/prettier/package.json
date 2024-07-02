@@ -1,5 +1,5 @@
 {
-  "name": "db",
+  "name": "prettier",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,11 +9,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "drizzle-orm": "^0.31.2",
-    "postgres": "^3.4.4"
-  },
   "devDependencies": {
-    "drizzle-kit": "^0.22.8"
+    "prettier": "^3.1.1"
   }
 }

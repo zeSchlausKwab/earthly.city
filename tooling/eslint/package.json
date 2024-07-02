@@ -1,5 +1,5 @@
 {
-  "name": "db",
+  "name": "eslint",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,11 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "drizzle-orm": "^0.31.2",
-    "postgres": "^3.4.4"
-  },
   "devDependencies": {
-    "drizzle-kit": "^0.22.8"
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
+    "eslint": "^9.6.0"
   }
 }

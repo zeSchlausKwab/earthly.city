@@ -10,10 +10,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "fastify": "^4.28.1"
+    "@fastify/cors": "^9.0.1",
+    "drizzle-orm": "^0.31.2",
+    "fastify": "^4.28.1",
+    "postgres": "^3.4.4"
   },
   "devDependencies": {
     "@types/node": "18.11.18",
+    "drizzle-kit": "^0.22.8",
     "typescript": "^5.5.3"
   }
 }
