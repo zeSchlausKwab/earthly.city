@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "@earthly-land/db": "workspace:*",
+    "@earthly-land/common": "workspace:*",
     "@fastify/cors": "^9.0.1",
     "drizzle-orm": "^0.31.2",
     "fastify": "^4.28.1"

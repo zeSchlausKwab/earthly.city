@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { drawnFeature, features } from '$lib/stores/appStore'
 	import { createFeature } from '$lib/services/api'
+	import { randomColor } from '@earthly-land/common'
 
 	let name = ''
 	let description = ''
@@ -27,7 +28,7 @@
 			drawnFeature.set(null)
 			name = ''
 			description = ''
-			color = '#ff0000'
+			color = randomColor()
 		}
 	}
 </script>

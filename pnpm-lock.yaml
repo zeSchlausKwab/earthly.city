@@ -10,6 +10,9 @@ importers:
 
   apps/backend:
     dependencies:
+      '@earthly-land/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@earthly-land/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -228,6 +231,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@earthly-land/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@earthly-land/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       geojson:
         specifier: ^0.5.0
         version: 0.5.0
@@ -322,6 +331,22 @@ importers:
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.9)
+
+  packages/common:
+    dependencies:
+      zod:
+        specifier: ^3.21.4
+        version: 3.23.8
+    devDependencies:
+      '@earthly-land/eslint':
+        specifier: workspace:*
+        version: link:../../tooling/eslint
+      '@earthly-land/prettier':
+        specifier: workspace:*
+        version: link:../../tooling/prettier
+      typescript:
+        specifier: ^5.0.4
+        version: 5.5.3
 
   packages/db:
     dependencies:
@@ -6110,6 +6135,9 @@ packages:
   zip-stream@4.1.1:
     resolution: {integrity: sha512-9qv4rlDiopXg4E69k+vMHjNN63YFMe9sZMrdlvKnCjlCRWeCBswPPMPUfx+ipsAWq1LXHe70RcbaHdJJpS6hyQ==}
     engines: {node: '>= 10'}
+
+  zod@3.23.8:
+    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
 snapshots:
 
@@ -12165,3 +12193,5 @@ snapshots:
       archiver-utils: 3.0.4
       compress-commons: 4.1.2
       readable-stream: 3.6.2
+
+  zod@3.23.8: {}
