@@ -1,9 +1,10 @@
 {
   "name": "@earthly-land/db",
   "version": "1.0.0",
-  "description": "Database package for Earthly Land",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
   "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js",
     "generate": "drizzle-kit generate",
     "push": "drizzle-kit push",
     "up": "drizzle-kit up",
