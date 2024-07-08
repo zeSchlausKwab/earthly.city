@@ -1,5 +1,14 @@
 version: '3.8'
 services:
+  phoenixd:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "9740:9740"
+    volumes:
+      - ./phoenix_data:/root/.phoenix
+    command: ./phoenixd
   db:
     image: postgres:13
     environment:

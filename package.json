@@ -13,7 +13,8 @@
     "db:generate": "pnpm --filter @earthly-land/db generate",
     "db:push": "pnpm --filter @earthly-land/db push",
     "db:up": "pnpm --filter @earthly-land/db up",
-    "db:migrate": "pnpm --filter @earthly-land/db migrate"
+    "db:migrate": "pnpm --filter @earthly-land/db migrate",
+    "studio": "cd packages/db && pnpm drizzle-kit studio"
   },
   "keywords": [],
   "author": "",

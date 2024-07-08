@@ -1,0 +1,6 @@
+{
+  "extends": [
+    "../../tooling/eslint/.eslintrc.js",
+    "next/core-web-vitals"
+  ]
+}
