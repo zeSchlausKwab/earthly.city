@@ -1,7 +1,7 @@
 'use client';
 
 import { useAtom } from 'jotai';
-import { editingFeatureAtom, focusedCollectionsAtom } from '../lib/store';
+import { editingFeatureAtom, focusedCollectionsAtom } from '../lib/store/store';
 
 const FocusedSidebar = () => {
     const [focusedCollections] = useAtom(focusedCollectionsAtom);

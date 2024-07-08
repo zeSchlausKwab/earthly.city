@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Header from "../components/Header";
 import "./globals.css";
+import DiscoverySidebar from "@/components/DiscoverySidebar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,13 +20,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <div className="flex flex-col h-screen">
-          <header className="bg-blue-600 text-white p-4">
-            <h1 className="text-2xl font-bold">Earthly Land</h1>
-          </header>
+          <Header />
           <div className="flex flex-1 overflow-hidden">
-            <aside className="w-1/4 bg-gray-100 p-4 overflow-y-auto">
-              <h2 className="text-xl font-semibold mb-4">Discovery</h2>
-              {/* Discovery content will go here */}
+            <aside className="w-1/4 bg-gray-100">
+              <DiscoverySidebar />
             </aside>
             <main className="flex-1 p-4 overflow-y-auto">{children}</main>
             <aside className="w-1/4 bg-gray-100 p-4 overflow-y-auto">

@@ -5,7 +5,7 @@ import { FeatureCollection } from 'geojson';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useRef, useState } from 'react';
-import { nostrStore } from '../../lib/nostrStore';
+import { featureDiscoveryStore } from '../../lib/store/feature-discovery';
 import GeomanControls from './GeomanControls';
 
 // Import default marker icon images
@@ -33,13 +33,9 @@ const Map = () => {
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(mapRef.current);
-
-            nostrStore.connectAndSubscribe();
-
-            const store = nostrStore.getStore();
+            const store = featureDiscoveryStore.getStore();
             const listenerId = store.addTableListener('features', () => {
-                featuresRef.current = nostrStore.getAllFeatures();
-                console.log('featuresRef.current:', featuresRef.current);
+                featuresRef.current = featureDiscoveryStore.getAllFeatures();
                 forceUpdate({});
             });
 

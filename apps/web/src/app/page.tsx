@@ -1,3 +1,5 @@
+'use client';
+
 import MapWrapper from "@/components/map/MapWrapper";
 
 export default function Home() {
