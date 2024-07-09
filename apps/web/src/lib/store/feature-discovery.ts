@@ -43,11 +43,11 @@ class FeatureDiscoveryStore {
     private handleFeatureEvent(event: NDKEvent) {
         try {
             const content = JSON.parse(event.content);
-            console.log('Received feature event:', event.id, content);
             if (this.isValidFeatureCollection(content)) {
                 this.store.setRow('features', event.id, {
                     id: event.id,
                     featureCollection: JSON.stringify(content),
+                    timestamp: event.created_at ?? Date.now()
                 });
                 this.saveToCache();
             } else {
@@ -80,9 +80,12 @@ class FeatureDiscoveryStore {
 
     getAllFeatures(): FeatureCollection[] {
         const features = this.store.getTable('features');
-        return Object.values(features)
+        const sortedFeatures = Object.values(features)
+            .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
             .map(feature => JSON.parse(feature.featureCollection as string))
             .filter(fc => this.isValidFeatureCollection(fc));
+        console.log("sortedFeatures", sortedFeatures);
+        return sortedFeatures;
     }
 }
 

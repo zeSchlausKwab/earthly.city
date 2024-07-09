@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import Header from "../components/Header";
 import "./globals.css";
 import DiscoverySidebar from "@/components/DiscoverySidebar";
+import RightSidebar from "@/components/RightSibebar";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,16 +24,16 @@ export default function RootLayout({
         <div className="flex flex-col h-screen">
           <Header />
           <div className="flex flex-1 overflow-hidden">
-            <aside className="w-1/4 bg-gray-100">
+            <aside className="w-1/4 p-4">
               <DiscoverySidebar />
             </aside>
-            <main className="flex-1 p-4 overflow-y-auto">{children}</main>
-            <aside className="w-1/4 bg-gray-100 p-4 overflow-y-auto">
-              <h2 className="text-xl font-semibold mb-4">Focused Collections</h2>
-              {/* Focused collections and editing content will go here */}
+            <main className="flex-1 p-4">{children}</main>
+            <aside className="w-1/4 p-4">
+              <RightSidebar />
             </aside>
           </div>
         </div>
+        <Toaster />
       </body>
     </html>
   );

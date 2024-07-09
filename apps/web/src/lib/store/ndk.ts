@@ -1,32 +1,31 @@
-import NDK, { NDKEvent, NDKFilter } from '@nostr-dev-kit/ndk';
+// lib/store/ndk-store.ts
+import NDK, { NDKNip07Signer } from '@nostr-dev-kit/ndk';
 
 class NDKStore {
-    private ndk: NDK;
+    private ndk: NDK | null = null;
 
-    constructor() {
+    async initialize() {
+        // Initialize with a NIP-07 signer (browser extension)
+        const signer = new NDKNip07Signer();
+
         this.ndk = new NDK({
             explicitRelayUrls: [
-                'wss://purplepag.es',
-                'wss://relay.nostr.band',
-                'wss://nos.lol',
-                'wss://bouncer.nostree.me',
-                'wss://nostr.land/',
-                'wss://purplerelay.com/',
+                'wss://relay.earthly.land',
+                // 'wss://relay.damus.io',
+                // 'wss://relay.nostr.band',
+                // 'wss://nos.lol',
             ],
+            signer
         });
-    }
 
-    async connect(): Promise<void> {
         await this.ndk.connect();
     }
 
-    getNDK(): NDK {
+    getNDK() {
+        if (!this.ndk) {
+            throw new Error('NDK not initialized');
+        }
         return this.ndk;
-    }
-
-    async fetchEvents(filter: NDKFilter): Promise<NDKEvent[]> {
-        const events = await this.ndk.fetchEvents(filter);
-        return Array.from(events);
     }
 }
 
