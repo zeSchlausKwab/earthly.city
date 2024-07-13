@@ -1,37 +1,54 @@
-// components/FeatureEditList.tsx
 import React from 'react';
-import { Feature, Geometry, Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon } from 'geojson';
+import { Feature, FeatureCollection, LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon } from 'geojson';
 import { PointFeatureEdit } from './PointFeatureEdit';
 import { LineStringFeatureEdit } from './LineStringFeatureEdit';
 import { PolygonFeatureEdit } from './PolygonFeatureEdit';
 import { MultiGeometryFeatureEdit } from './MultiGeometryFeatureEdit';
+import { Button } from '@/components/ui/button';
+import { v4 as uuidv4 } from 'uuid';
 
 interface FeatureEditListProps {
-    features: Feature[];
-    onFeatureChange: (featureId: string, updatedFeature: Feature) => void;
+    featureCollection: FeatureCollection;
+    onFeatureCollectionChange: (updatedFeatureCollection: FeatureCollection) => void;
 }
 
-export const FeatureEditList: React.FC<FeatureEditListProps> = ({ features, onFeatureChange }) => {
-    const handlePropertyChange = (featureId: string, key: string, value: string) => {
-        const feature = features.find(f => f.properties?.id === featureId);
-        if (feature) {
-            const updatedFeature = {
-                ...feature,
-                properties: { ...feature.properties, [key]: value }
-            };
-            onFeatureChange(featureId, updatedFeature);
-        }
+export const FeatureEditList: React.FC<FeatureEditListProps> = ({ featureCollection, onFeatureCollectionChange }) => {
+    const handleFeatureChange = (updatedFeature: Feature) => {
+        const updatedFeatures = featureCollection.features.map(feature =>
+            feature.properties?.id === updatedFeature.properties?.id ? updatedFeature : feature
+        );
+        onFeatureCollectionChange({
+            ...featureCollection,
+            features: updatedFeatures
+        });
     };
 
-    const handleGeometryChange = (featureId: string, coordinates: any) => {
-        const feature = features.find(f => f.properties?.id === featureId);
-        if (feature) {
-            const updatedFeature = {
-                ...feature,
-                geometry: { ...feature.geometry, coordinates }
-            };
-            onFeatureChange(featureId, updatedFeature);
-        }
+    const handleAddFeature = () => {
+        const newFeature: Feature = {
+            type: 'Feature',
+            properties: {
+                id: uuidv4(),
+                name: `New Feature ${featureCollection.features.length + 1}`,
+                description: 'Default description',
+                color: `#${Math.floor(Math.random() * 16777215).toString(16)}`
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [0, 0]
+            }
+        };
+        onFeatureCollectionChange({
+            ...featureCollection,
+            features: [...featureCollection.features, newFeature]
+        });
+    };
+
+    const handleRemoveFeature = (featureId: string) => {
+        const updatedFeatures = featureCollection.features.filter(feature => feature.properties?.id !== featureId);
+        onFeatureCollectionChange({
+            ...featureCollection,
+            features: updatedFeatures
+        });
     };
 
     const renderFeatureEdit = (feature: Feature) => {
@@ -40,24 +57,24 @@ export const FeatureEditList: React.FC<FeatureEditListProps> = ({ features, onFe
                 return (
                     <PointFeatureEdit
                         feature={feature as Feature<Point>}
-                        onPropertyChange={(key, value) => handlePropertyChange(feature.properties?.id!, key, value)}
-                        onGeometryChange={(coordinates) => handleGeometryChange(feature.properties?.id!, coordinates)}
+                        onChange={handleFeatureChange}
+                        onRemove={() => handleRemoveFeature(feature.properties?.id!)}
                     />
                 );
             case 'LineString':
                 return (
                     <LineStringFeatureEdit
                         feature={feature as Feature<LineString>}
-                        onPropertyChange={(key, value) => handlePropertyChange(feature.properties?.id!, key, value)}
-                        onGeometryChange={(coordinates) => handleGeometryChange(feature.properties?.id!, coordinates)}
+                        onChange={handleFeatureChange}
+                        onRemove={() => handleRemoveFeature(feature.properties?.id!)}
                     />
                 );
             case 'Polygon':
                 return (
                     <PolygonFeatureEdit
                         feature={feature as Feature<Polygon>}
-                        onPropertyChange={(key, value) => handlePropertyChange(feature.properties?.id!, key, value)}
-                        onGeometryChange={(coordinates) => handleGeometryChange(feature.properties?.id!, coordinates)}
+                        onChange={handleFeatureChange}
+                        onRemove={() => handleRemoveFeature(feature.properties?.id!)}
                     />
                 );
             case 'MultiPoint':
@@ -66,8 +83,8 @@ export const FeatureEditList: React.FC<FeatureEditListProps> = ({ features, onFe
                 return (
                     <MultiGeometryFeatureEdit
                         feature={feature as Feature<MultiPoint | MultiLineString | MultiPolygon>}
-                        onPropertyChange={(key, value) => handlePropertyChange(feature.properties?.id!, key, value)}
-                        onGeometryChange={(coordinates) => handleGeometryChange(feature.properties?.id!, coordinates)}
+                        onChange={handleFeatureChange}
+                        onRemove={() => handleRemoveFeature(feature.properties?.id!)}
                     />
                 );
             default:
@@ -75,13 +92,19 @@ export const FeatureEditList: React.FC<FeatureEditListProps> = ({ features, onFe
         }
     };
 
+    const collectionName = featureCollection.features[0]?.properties?.name || 'Unnamed Collection';
+
     return (
         <div className="space-y-4">
-            {features.map((feature) => (
+            <h2 className="text-2xl font-bold">
+                Editing: {collectionName}
+            </h2>
+            {featureCollection.features.map((feature) => (
                 <div key={feature.properties?.id}>
                     {renderFeatureEdit(feature)}
                 </div>
             ))}
+            <Button onClick={handleAddFeature}>Add New Feature</Button>
         </div>
     );
 };

@@ -1,10 +1,15 @@
+// lib/store/edit.ts
+
 import { atom } from 'jotai';
 import { Feature, FeatureCollection } from 'geojson';
 import { v4 as uuidv4 } from 'uuid';
 import { publishFeature } from '../nostr/publishFeature';
 
+export type EditMode = 'view' | 'create' | 'edit';
+
 export interface EditState {
     featureCollection: FeatureCollection;
+    mode: EditMode;
 }
 
 const initialFeatureCollection: FeatureCollection = {
@@ -12,23 +17,18 @@ const initialFeatureCollection: FeatureCollection = {
     features: []
 };
 
-export const editStateAtom = atom<EditState>({
-    featureCollection: initialFeatureCollection
-});
+const initialEditState: EditState = {
+    featureCollection: initialFeatureCollection,
+    mode: 'view'
+};
 
-export const publishFeatureAtom = atom(
+export const editStateAtom = atom<EditState>(initialEditState);
+
+export const setModeAtom = atom(
     null,
-    async (get, set) => {
-        const { featureCollection } = get(editStateAtom);
-        try {
-            const publishedEvent = await publishFeature(featureCollection);
-            // You might want to update the featureCollection with the published event id
-            set(editStateAtom, { featureCollection: { ...featureCollection } });
-            return publishedEvent;
-        } catch (error) {
-            console.error('Error publishing feature:', error);
-            throw error;
-        }
+    (get, set, mode: EditMode) => {
+        const currentState = get(editStateAtom);
+        set(editStateAtom, { ...currentState, mode });
     }
 );
 
@@ -47,10 +47,12 @@ export const addFeatureAtom = atom(
             }
         };
         set(editStateAtom, {
+            ...currentState,
             featureCollection: {
                 ...currentState.featureCollection,
                 features: [...currentState.featureCollection.features, newFeature]
-            }
+            },
+            mode: 'edit'
         });
     }
 );
@@ -63,6 +65,7 @@ export const updateFeatureAtom = atom(
             feature.properties?.id === updatedFeature.properties?.id ? updatedFeature : feature
         );
         set(editStateAtom, {
+            ...currentState,
             featureCollection: {
                 ...currentState.featureCollection,
                 features: updatedFeatures
@@ -79,10 +82,22 @@ export const removeFeatureAtom = atom(
             feature.properties?.id !== featureId
         );
         set(editStateAtom, {
+            ...currentState,
             featureCollection: {
                 ...currentState.featureCollection,
                 features: updatedFeatures
             }
+        });
+    }
+);
+
+export const updateFeatureCollectionAtom = atom(
+    null,
+    (get, set, updatedFeatureCollection: FeatureCollection) => {
+        const currentState = get(editStateAtom);
+        set(editStateAtom, {
+            ...currentState,
+            featureCollection: updatedFeatureCollection
         });
     }
 );
@@ -104,6 +119,7 @@ export const setPropertyAtom = atom(
             return feature;
         });
         set(editStateAtom, {
+            ...currentState,
             featureCollection: {
                 ...currentState.featureCollection,
                 features: updatedFeatures
@@ -115,6 +131,22 @@ export const setPropertyAtom = atom(
 export const clearEditStateAtom = atom(
     null,
     (_, set) => {
-        set(editStateAtom, { featureCollection: initialFeatureCollection });
+        set(editStateAtom, initialEditState);
+    }
+);
+
+export const publishFeatureAtom = atom(
+    null,
+    async (get, set) => {
+        const { featureCollection } = get(editStateAtom);
+        try {
+            const publishedEvent = await publishFeature(featureCollection);
+            // You might want to update the featureCollection with the published event id
+            set(editStateAtom, initialEditState);
+            return publishedEvent;
+        } catch (error) {
+            console.error('Error publishing feature:', error);
+            throw error;
+        }
     }
 );

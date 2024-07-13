@@ -1,54 +1,94 @@
+// components/LineStringFeatureEdit.tsx
 import React from 'react';
 import { Feature, LineString } from 'geojson';
-import { FeatureEdit } from './FeatureEdit';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 
 interface LineStringFeatureEditProps {
     feature: Feature<LineString>;
-    onPropertyChange: (key: string, value: string) => void;
-    onGeometryChange: (coordinates: number[][]) => void;
+    onChange: (updatedFeature: Feature<LineString>) => void;
 }
 
-export const LineStringFeatureEdit: React.FC<LineStringFeatureEditProps> = ({ feature, onPropertyChange, onGeometryChange }) => {
-    const handleCoordinateChange = (index: number, coord: number, value: string) => {
-        const newCoordinates = [...feature.geometry.coordinates];
-        newCoordinates[index][coord] = parseFloat(value);
-        onGeometryChange(newCoordinates);
+export const LineStringFeatureEdit: React.FC<LineStringFeatureEditProps> = ({ feature, onChange }) => {
+    const handlePropertyChange = (key: string, value: string) => {
+        onChange({
+            ...feature,
+            properties: { ...feature.properties, [key]: value }
+        });
+    };
+
+    const handleCoordinateChange = (pointIndex: number, coordIndex: number, value: string) => {
+        const newCoordinates = JSON.parse(JSON.stringify(feature.geometry.coordinates));
+        newCoordinates[pointIndex][coordIndex] = parseFloat(value);
+        onChange({
+            ...feature,
+            geometry: {
+                ...feature.geometry,
+                coordinates: newCoordinates
+            }
+        });
     };
 
     const addPoint = () => {
         const newCoordinates = [...feature.geometry.coordinates, [0, 0]];
-        onGeometryChange(newCoordinates);
+        onChange({
+            ...feature,
+            geometry: {
+                ...feature.geometry,
+                coordinates: newCoordinates
+            }
+        });
     };
 
-    const removePoint = (index: number) => {
-        const newCoordinates = feature.geometry.coordinates.filter((_, i) => i !== index);
-        onGeometryChange(newCoordinates);
+    const removePoint = (pointIndex: number) => {
+        const newCoordinates = feature.geometry.coordinates.filter((_, index) => index !== pointIndex);
+        onChange({
+            ...feature,
+            geometry: {
+                ...feature.geometry,
+                coordinates: newCoordinates
+            }
+        });
     };
 
     return (
-        <FeatureEdit feature={feature} onPropertyChange={onPropertyChange}>
-            <div className="space-y-2">
-                {feature.geometry.coordinates.map((point, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                        <Input
-                            type="number"
-                            value={point[0]}
-                            onChange={(e) => handleCoordinateChange(index, 0, e.target.value)}
-                            placeholder="Longitude"
-                        />
-                        <Input
-                            type="number"
-                            value={point[1]}
-                            onChange={(e) => handleCoordinateChange(index, 1, e.target.value)}
-                            placeholder="Latitude"
-                        />
-                        <Button onClick={() => removePoint(index)} variant="destructive">Remove</Button>
-                    </div>
-                ))}
-                <Button onClick={addPoint}>Add Point</Button>
+        <div className="space-y-4">
+            <h3 className="text-lg font-semibold">LineString Feature</h3>
+            <div>
+                <Label htmlFor="name">Name</Label>
+                <Input
+                    id="name"
+                    value={feature.properties?.name || ''}
+                    onChange={(e) => handlePropertyChange('name', e.target.value)}
+                />
             </div>
-        </FeatureEdit>
+            <div>
+                <Label htmlFor="description">Description</Label>
+                <Input
+                    id="description"
+                    value={feature.properties?.description || ''}
+                    onChange={(e) => handlePropertyChange('description', e.target.value)}
+                />
+            </div>
+            {feature.geometry.coordinates.map((point, pointIndex) => (
+                <div key={pointIndex} className="flex space-x-2">
+                    <Input
+                        type="number"
+                        value={point[0]}
+                        onChange={(e) => handleCoordinateChange(pointIndex, 0, e.target.value)}
+                        placeholder="Longitude"
+                    />
+                    <Input
+                        type="number"
+                        value={point[1]}
+                        onChange={(e) => handleCoordinateChange(pointIndex, 1, e.target.value)}
+                        placeholder="Latitude"
+                    />
+                    <Button onClick={() => removePoint(pointIndex)}>Remove</Button>
+                </div>
+            ))}
+            <Button onClick={addPoint}>Add Point</Button>
+        </div>
     );
 };

@@ -17,6 +17,7 @@ import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 import { ndkStore } from '@/lib/store/ndk';
 import MapController from './MapController';
+import { v4 as uuidv4 } from 'uuid';
 
 // Set up default icon
 L.Icon.Default.mergeOptions({
@@ -33,7 +34,8 @@ const Map = () => {
     const [, addFeature] = useAtom(addFeatureAtom);
     const [, updateFeature] = useAtom(updateFeatureAtom);
     const [, removeFeature] = useAtom(removeFeatureAtom);
-    const [editState] = useAtom(editStateAtom);
+    const [editState, setEditState] = useAtom(editStateAtom);
+
 
     useEffect(() => {
         if (typeof window !== 'undefined' && !mapRef.current && mapContainerRef.current) {
@@ -80,6 +82,27 @@ const Map = () => {
             addFeature(clonedFeature);
         }
     };
+
+    const handleEditFeatureCollection = (featureCollection: FeatureCollection) => {
+        const ndk = ndkStore.getNDK();
+        if (featureCollection.features.every(f => f.properties?.pubkey === ndk.activeUser?.pubkey)) {
+            setEditState({ featureCollection, mode: 'edit' });
+        } else {
+            const clonedFeatureCollection: FeatureCollection = {
+                ...featureCollection,
+                features: featureCollection.features.map(feature => ({
+                    ...feature,
+                    properties: {
+                        ...feature.properties,
+                        id: uuidv4(),
+                        pubkey: ndk.activeUser?.pubkey,
+                    }
+                }))
+            };
+            setEditState({ featureCollection: clonedFeatureCollection, mode: 'edit' });
+        }
+    };
+
 
     useEffect(() => {
         if (mapReady && mapRef.current) {
@@ -128,7 +151,12 @@ const Map = () => {
                         `;
                         const editButton = document.createElement('button');
                         editButton.innerText = 'Edit';
-                        editButton.onclick = () => handleEditFeature(feature);
+                        editButton.onclick = () => {
+                            const featureCollection = features.find(fc =>
+                                fc.features.some(f => f.properties?.id === feature.properties?.id)
+                            ) || editState.featureCollection;
+                            handleEditFeatureCollection(featureCollection);
+                        };
                         popupContent.appendChild(editButton);
                         return popupContent;
                     });
@@ -151,3 +179,18 @@ const Map = () => {
 };
 
 export default Map;
+
+
+// Come up with a concept of organising data between the map, the sidebars and local storage. 
+
+// - Keep in mind that we're going to use tinybase and jotai.
+ 
+// - Users need to be able to create features, collections and moderated collections
+ 
+// - 37515 contain FeatureCollections
+ 
+// - Come up with a data structure for the common states of the components like map, discovery bar, edit and detail bar
+ 
+// - feature events have ids
+ 
+// - features within collections have ids
