@@ -1,12 +1,12 @@
+"use client"
+
 import React from 'react';
+import DiscoveredFeatures from './DiscoveredFeatures';
 
 const DiscoverySidebar: React.FC = () => {
-
-
     return (
         <div>
-            <h2>Discovered Features</h2>
-
+            <DiscoveredFeatures />
         </div>
     );
 };
