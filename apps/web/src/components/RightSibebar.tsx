@@ -1,31 +1,120 @@
 "use client"
 
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useFeatureCollection } from '@/lib/store/featureCollection';
-import { ScrollArea } from '@radix-ui/react-scroll-area';
-import { Feature, GeoJsonProperties, Geometry } from 'geojson';
-import React from 'react';
+import { Feature } from 'geojson';
+import React, { useState, useEffect } from 'react';
 import GeometryEditor from './geometry-editors/GeometryEditor';
+import { PlateEditor } from './PlateEditor';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { useToast } from './ui/use-toast';
 
 const RightSidebar: React.FC = () => {
-  const { featureCollection, editFeature } = useFeatureCollection();
+  const { featureCollection, updateFeature, updateCollectionMetadata, saveChanges, publishFeatureEvent, unsavedChanges } = useFeatureCollection();
+  const { toast } = useToast();
+  const [editMode, setEditMode] = useState(false);
 
-  const handlePropertyChange = (feature: Feature<Geometry, GeoJsonProperties>) => {
-    if (feature.properties?.id) {
-      editFeature(feature.properties.id, feature.properties);
+  useEffect(() => {
+    // If the collection doesn't have an naddr, it's a new collection, so we start in edit mode
+    setEditMode(!featureCollection.naddr);
+  }, [featureCollection.naddr]);
+
+  const handleFeatureChange = (updatedFeature: Feature) => {
+    if (editMode) {
+      updateFeature(updatedFeature);
     }
   };
 
+  const handleCollectionMetadataChange = (key: 'name' | 'description', value: string) => {
+    if (editMode) {
+      updateCollectionMetadata({ [key]: value });
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    let success = false;
+
+    if (featureCollection.naddr) {
+      success = await saveChanges();
+    } else {
+      success = await publishFeatureEvent();
+    }
+    if (success) {
+      toast({
+        title: "Changes saved",
+        description: "Your feature collection has been updated successfully.",
+      });
+      // Exit edit mode after successful save
+      setEditMode(false);
+    } else {
+      toast({
+        title: "Error saving changes",
+        description: "There was a problem saving your changes. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleEditMode = () => {
+    setEditMode(!editMode);
+  };
+
   return (
-    <ScrollArea className="p-4 overflow-y-auto h-full">
-      <h2 className="text-xl font-bold mb-4">Feature Details</h2>
-      {featureCollection.features.map((feature, index) => (
+    <ScrollArea className="p-4 h-full">
+      <h2 className="text-xl font-bold mb-4">Feature Collection</h2>
+      <div className="mb-4">
+        <Label htmlFor="collection-name">Collection Name</Label>
+        <Input
+          id="collection-name"
+          value={featureCollection.name || ''}
+          onChange={(e) => handleCollectionMetadataChange('name', e.target.value)}
+          readOnly={!editMode}
+        />
+      </div>
+      <div className="mb-4">
+        <Label htmlFor="collection-description">Collection Description</Label>
+        <PlateEditor
+          initialValue={[{ type: 'p', children: [{ text: featureCollection.description || '' }] }]}
+          onChange={(value) => handleCollectionMetadataChange('description', JSON.stringify(value))}
+          readOnly={!editMode}
+        />
+      </div>
+      <h3 className="text-lg font-semibold mb-2">Features</h3>
+      {featureCollection.features.map((feature) => (
         <GeometryEditor
           key={feature.properties?.id}
           feature={feature}
-          editMode={true}
-          onChange={handlePropertyChange}
+          editMode={editMode}
+          onChange={handleFeatureChange}
         />
       ))}
+      {editMode ? (
+        <Button
+          onClick={handleSaveChanges}
+          disabled={!unsavedChanges}
+          className="mt-4 mr-2"
+        >
+          Save Changes
+        </Button>
+      ) : (
+        <Button
+          onClick={toggleEditMode}
+          className="mt-4 mr-2"
+        >
+          Edit Collection
+        </Button>
+      )}
+      {featureCollection.naddr && (
+        <Button
+          onClick={toggleEditMode}
+          variant="outline"
+          className="mt-4"
+        >
+          {editMode ? 'Cancel' : 'Edit'}
+        </Button>
+      )}
     </ScrollArea>
   );
 };

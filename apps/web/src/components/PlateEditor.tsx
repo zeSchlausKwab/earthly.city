@@ -12,15 +12,7 @@ const plugins = createPlugins([
     components: {},
 });
 
-const initialValue = [
-    {
-        id: 1,
-        type: 'p',
-        children: [{ text: '' }],
-    },
-];
-
-export function PlateEditor() {
+export function PlateEditor({ initialValue }: { initialValue: any }) {
     return (
         <Plate plugins={plugins} initialValue={initialValue}>
             <Editor placeholder="Type your message here." />
