@@ -25,34 +25,19 @@ export const publishFeatureCollectionEvent = async (featureCollection: FeatureCo
 
 export const updateFeatureCollectionEvent = async (featureCollection: FeatureCollection): Promise<NDKEvent | null> => {
     const ndk = ndkStore.getNDK();
+    const newEvent = new NDKEvent(ndk)
 
-    const filter = {
-        kinds: [37515],
-        '#d': [featureCollection.id || 'default'],
-    };
-
-    console.log('Filter:', filter);
-    console.log('Feature collection:', featureCollection);
-
-    const existingEvents = await ndk.fetchEvents(filter);
-
-    console.log('Existing events:', existingEvents);
-
-    if (existingEvents.length === 0) {
-        return publishFeatureCollectionEvent(featureCollection);
-    }
-
-    const existingEvent = existingEvents[0];
-    existingEvent.content = JSON.stringify(featureCollection);
-    existingEvent.tags = [
+    newEvent.kind = 37515;
+    newEvent.content = JSON.stringify(featureCollection);
+    newEvent.tags = [
         ['d', featureCollection.id || 'default'],
         ['name', featureCollection.name || 'Unnamed Collection'],
         ['description', featureCollection.description || ''],
     ];
 
     try {
-        await existingEvent.publish();
-        return existingEvent;
+        await newEvent.publish();
+        return newEvent;
     } catch (error) {
         console.error('Error updating feature collection event:', error);
         return null;

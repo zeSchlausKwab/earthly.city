@@ -15,12 +15,14 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface GeometryEditorProps {
     feature: GeoJSON.Feature;
-    editMode: boolean;
+    mode: 'edit' | 'view';
     onChange: (feature: GeoJSON.Feature) => void;
 }
 
-const GeometryEditor: React.FC<GeometryEditorProps> = ({ feature, editMode, onChange }) => {
+const GeometryEditor: React.FC<GeometryEditorProps> = ({ feature, mode, onChange }) => {
     const [isOpen, setIsOpen] = React.useState(false);
+    const isEditMode = mode === 'edit';
+
 
     const handlePropertyChange = (key: string, value: string) => {
         onChange({
@@ -42,15 +44,15 @@ const GeometryEditor: React.FC<GeometryEditorProps> = ({ feature, editMode, onCh
     const renderGeometryEditor = () => {
         switch (feature.geometry.type) {
             case 'Point':
-                return <PointEditor geometry={feature.geometry} editMode={editMode} onChange={handleGeometryChange} />;
+                return <PointEditor geometry={feature.geometry} editMode={isEditMode} onChange={handleGeometryChange} />;
             case 'LineString':
-                return <LineStringEditor geometry={feature.geometry} editMode={editMode} onChange={handleGeometryChange} />;
+                return <LineStringEditor geometry={feature.geometry} editMode={isEditMode} onChange={handleGeometryChange} />;
             case 'Polygon':
-                return <PolygonEditor geometry={feature.geometry} editMode={editMode} onChange={handleGeometryChange} />;
+                return <PolygonEditor geometry={feature.geometry} editMode={isEditMode} onChange={handleGeometryChange} />;
             case 'MultiPoint':
             case 'MultiLineString':
             case 'MultiPolygon':
-                return <MultiGeometryEditor geometry={feature.geometry} editMode={editMode} onChange={handleGeometryChange} />;
+                return <MultiGeometryEditor geometry={feature.geometry} editMode={isEditMode} onChange={handleGeometryChange} />;
             default:
                 return <div>Unsupported geometry type</div>;
         }
@@ -66,7 +68,7 @@ const GeometryEditor: React.FC<GeometryEditorProps> = ({ feature, editMode, onCh
                         className='h-8 text-xs'
                         value={feature.properties?.name || ''}
                         onChange={(e) => handlePropertyChange('name', e.target.value)}
-                        disabled={!editMode}
+                        disabled={!isEditMode}
                     />
                 </div>
                 <div>
@@ -77,7 +79,7 @@ const GeometryEditor: React.FC<GeometryEditorProps> = ({ feature, editMode, onCh
                         type="color"
                         value={feature.properties?.color || '#000000'}
                         onChange={(e) => handlePropertyChange('color', e.target.value)}
-                        disabled={!editMode}
+                        disabled={!isEditMode}
                     />
                 </div>
             </div>
@@ -88,7 +90,7 @@ const GeometryEditor: React.FC<GeometryEditorProps> = ({ feature, editMode, onCh
                     className='h-8 text-xs'
                     value={feature.properties?.description || ''}
                     onChange={(e) => handlePropertyChange('description', e.target.value)}
-                    disabled={!editMode}
+                    disabled={!isEditMode}
                 />
             </div>
             <Collapsible open={isOpen} onOpenChange={setIsOpen}>

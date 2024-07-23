@@ -17,7 +17,6 @@ const RightSidebar: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
-    // If the collection doesn't have an naddr, it's a new collection, so we start in edit mode
     setEditMode(!featureCollection.naddr);
   }, [featureCollection.naddr]);
 
@@ -86,7 +85,7 @@ const RightSidebar: React.FC = () => {
         <GeometryEditor
           key={feature.properties?.id}
           feature={feature}
-          editMode={editMode}
+          mode={editMode ? 'edit' : 'view'}
           onChange={handleFeatureChange}
         />
       ))}

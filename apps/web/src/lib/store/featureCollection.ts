@@ -5,6 +5,7 @@ import { FeatureCollection, Feature, GeoJsonProperties } from 'geojson';
 import { v4 as uuidv4 } from "uuid";
 import { generateRandomColor } from "@earthly-land/common";
 import { publishFeatureCollectionEvent, updateFeatureCollectionEvent } from '../service/featureEventService';
+import { DiscoveredFeature } from './featureDiscovery';
 
 const featureCollectionAtom = atom<FeatureCollection & { naddr?: string }>({
     type: 'FeatureCollection',
@@ -20,6 +21,16 @@ const unsavedChangesAtom = atom<boolean>(false);
 export const useFeatureCollection = () => {
     const [featureCollection, setFeatureCollection] = useAtom(featureCollectionAtom);
     const [unsavedChanges, setUnsavedChanges] = useAtom(unsavedChangesAtom);
+
+    const loadFeatureCollection = (feature: DiscoveredFeature, editMode: boolean) => {
+        setFeatureCollection({
+            ...feature.featureCollection,
+            naddr: feature.naddr,
+            name: feature.name,
+            description: feature.description,
+        });
+        // setEditMode(editMode);
+    };
 
     const createFeature = (geoJSON: Feature) => {
         const newFeatureIndex = featureCollection.features.length;
@@ -120,6 +131,7 @@ export const useFeatureCollection = () => {
         updateCollectionMetadata,
         saveChanges,
         publishFeatureEvent,
+        loadFeatureCollection,
         unsavedChanges,
     };
 };

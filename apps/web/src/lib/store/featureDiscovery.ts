@@ -1,12 +1,12 @@
 "use client"
 
-import { atom, useAtom } from 'jotai';
-import NDK, { NDKEvent, NDKFilter, NDKKind, NDKSubscription } from '@nostr-dev-kit/ndk';
+import { NDKEvent, NDKFilter, NDKKind } from '@nostr-dev-kit/ndk';
 import { FeatureCollection } from 'geojson';
+import { atom, useAtom } from 'jotai';
+import { nip19 } from 'nostr-tools';
 import { ndkStore } from './ndk';
-import { nip19 } from 'nostr-tools'
 
-interface DiscoveredFeature {
+export interface DiscoveredFeature {
     id: string;
     naddr: string;
     pubkey: string;
@@ -44,9 +44,6 @@ export const useFeatureDiscovery = () => {
                         name: event.tagValue('name'),
                         description: event.tagValue('description'),
                     };
-
-                    console.log('Discovered feature:', newFeature);
-
                     setDiscoveredFeatures((prev) => [...prev, newFeature]);
                 }
             } catch (error) {
