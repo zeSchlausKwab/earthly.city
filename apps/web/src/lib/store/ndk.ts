@@ -5,7 +5,6 @@ class NDKStore {
     private ndk: NDK | null = null;
 
     async initialize() {
-        // Initialize with a NIP-07 signer (browser extension)
         const signer = new NDKNip07Signer();
 
         this.ndk = new NDK({
