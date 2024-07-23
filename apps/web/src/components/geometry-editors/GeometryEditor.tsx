@@ -5,6 +5,13 @@ import PolygonEditor from './PolygonEditor';
 import MultiGeometryEditor from './MultiGeometryEditor';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "../ui/collapsible";
+import { Button } from '../ui/button';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface GeometryEditorProps {
     feature: GeoJSON.Feature;
@@ -13,6 +20,8 @@ interface GeometryEditorProps {
 }
 
 const GeometryEditor: React.FC<GeometryEditorProps> = ({ feature, editMode, onChange }) => {
+    const [isOpen, setIsOpen] = React.useState(false);
+
     const handlePropertyChange = (key: string, value: string) => {
         onChange({
             ...feature,
@@ -50,6 +59,7 @@ const GeometryEditor: React.FC<GeometryEditorProps> = ({ feature, editMode, onCh
     return (
         <div>
             <div className="mb-4">
+                {feature.properties?.id && <div className="mb-2">ID: {feature.properties.id}</div>}
                 <Label htmlFor="name">Name</Label>
                 <Input
                     id="name"
@@ -77,7 +87,17 @@ const GeometryEditor: React.FC<GeometryEditorProps> = ({ feature, editMode, onCh
                     disabled={!editMode}
                 />
             </div>
-            {renderGeometryEditor()}
+            <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+                <CollapsibleTrigger asChild>
+                    <Button variant="outline" className="w-full">
+                        Geometry Editor
+                        {isOpen ? <ChevronUp className="h-4 w-4 ml-2" /> : <ChevronDown className="h-4 w-4 ml-2" />}
+                    </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                    {renderGeometryEditor()}
+                </CollapsibleContent>
+            </Collapsible>
         </div>
     );
 };

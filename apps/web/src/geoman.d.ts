@@ -7,6 +7,7 @@ declare module 'leaflet' {
         disableDraw(shape: string): void;
         setPathOptions(options: any): void;
         getGeomanDrawLayers(): L.Layer[];
+        setOptIn(optIn: boolean): void;
     }
 
     interface Map {
