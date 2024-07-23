@@ -58,38 +58,42 @@ const GeometryEditor: React.FC<GeometryEditorProps> = ({ feature, editMode, onCh
 
     return (
         <div>
-            <div className="mb-4">
-                {feature.properties?.id && <div className="mb-2">ID: {feature.properties.id}</div>}
-                <Label htmlFor="name">Name</Label>
-                <Input
-                    id="name"
-                    value={feature.properties?.name || ''}
-                    onChange={(e) => handlePropertyChange('name', e.target.value)}
-                    disabled={!editMode}
-                />
+            <div className="mb-2 flex flex-row justify-between">
+                <div>
+                    <Label htmlFor="name">Name</Label>
+                    <Input
+                        id="name"
+                        className='h-8 text-xs'
+                        value={feature.properties?.name || ''}
+                        onChange={(e) => handlePropertyChange('name', e.target.value)}
+                        disabled={!editMode}
+                    />
+                </div>
+                <div>
+                    <Label htmlFor="color">Color</Label>
+                    <Input
+                        id="color"
+                        className='h-8 text-xs'
+                        type="color"
+                        value={feature.properties?.color || '#000000'}
+                        onChange={(e) => handlePropertyChange('color', e.target.value)}
+                        disabled={!editMode}
+                    />
+                </div>
             </div>
-            <div className="mb-4">
+            <div className="mb-2">
                 <Label htmlFor="description">Description</Label>
                 <Input
                     id="description"
+                    className='h-8 text-xs'
                     value={feature.properties?.description || ''}
                     onChange={(e) => handlePropertyChange('description', e.target.value)}
                     disabled={!editMode}
                 />
             </div>
-            <div className="mb-4">
-                <Label htmlFor="color">Color</Label>
-                <Input
-                    id="color"
-                    type="color"
-                    value={feature.properties?.color || '#000000'}
-                    onChange={(e) => handlePropertyChange('color', e.target.value)}
-                    disabled={!editMode}
-                />
-            </div>
             <Collapsible open={isOpen} onOpenChange={setIsOpen}>
                 <CollapsibleTrigger asChild>
-                    <Button variant="outline" className="w-full">
+                    <Button size={'sm'} variant="outline" className="w-full">
                         Geometry Editor
                         {isOpen ? <ChevronUp className="h-4 w-4 ml-2" /> : <ChevronDown className="h-4 w-4 ml-2" />}
                     </Button>

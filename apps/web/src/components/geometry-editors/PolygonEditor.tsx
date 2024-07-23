@@ -46,6 +46,7 @@ const PolygonEditor: React.FC<PolygonEditorProps> = ({ geometry, editMode, onCha
             <div key={pointIndex} className="flex items-center space-x-2 mb-2">
               <Input
                 type="number"
+                className='h-8 text-xs'
                 value={coord[0]}
                 onChange={(e) => handleCoordinateChange(ringIndex, pointIndex, 0, parseFloat(e.target.value))}
                 disabled={!editMode}
@@ -53,18 +54,19 @@ const PolygonEditor: React.FC<PolygonEditorProps> = ({ geometry, editMode, onCha
               />
               <Input
                 type="number"
+                className='h-8 text-xs'
                 value={coord[1]}
                 onChange={(e) => handleCoordinateChange(ringIndex, pointIndex, 1, parseFloat(e.target.value))}
                 disabled={!editMode}
                 placeholder="Latitude"
               />
               {editMode && (
-                <Button onClick={() => removePoint(ringIndex, pointIndex)} variant="destructive">Remove</Button>
+                <Button size={'sm'} onClick={() => removePoint(ringIndex, pointIndex)} variant="destructive">Remove</Button>
               )}
             </div>
           ))}
           {editMode && (
-            <Button onClick={() => addPoint(ringIndex)} className="mt-2">Add Point</Button>
+            <Button size={'sm'} onClick={() => addPoint(ringIndex)} className="mt-2">Add Point</Button>
           )}
         </div>
       ))}

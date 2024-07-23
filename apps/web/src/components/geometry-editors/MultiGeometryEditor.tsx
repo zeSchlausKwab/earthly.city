@@ -88,7 +88,7 @@ const MultiGeometryEditor: React.FC<MultiGeometryEditorProps> = ({ geometry, edi
           <h4 className="text-md font-medium mb-2">{geometry.type.replace('Multi', '')} {index + 1}</h4>
           {renderEditor(coords, index)}
           {editMode && (
-            <Button onClick={() => removeGeometry(index)} variant="destructive" className="mt-2">
+            <Button size={'sm'} onClick={() => removeGeometry(index)} variant="destructive" className="mt-2">
               Remove {geometry.type.replace('Multi', '')}
             </Button>
           )}

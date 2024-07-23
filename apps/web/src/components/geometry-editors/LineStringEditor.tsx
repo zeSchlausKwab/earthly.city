@@ -41,6 +41,7 @@ const LineStringEditor: React.FC<LineStringEditorProps> = ({ geometry, editMode,
                 <div key={index} className="flex items-center space-x-2 mb-2">
                     <Input
                         type="number"
+                        className='h-8 text-xs'
                         value={coord[0]}
                         onChange={(e) => handleCoordinateChange(index, 0, parseFloat(e.target.value))}
                         disabled={!editMode}
@@ -48,18 +49,19 @@ const LineStringEditor: React.FC<LineStringEditorProps> = ({ geometry, editMode,
                     />
                     <Input
                         type="number"
+                        className='h-8 text-xs'
                         value={coord[1]}
                         onChange={(e) => handleCoordinateChange(index, 1, parseFloat(e.target.value))}
                         disabled={!editMode}
                         placeholder="Latitude"
                     />
                     {editMode && (
-                        <Button onClick={() => removePoint(index)} variant="destructive">Remove</Button>
+                        <Button size={'sm'} onClick={() => removePoint(index)} variant="destructive">Remove</Button>
                     )}
                 </div>
             ))}
             {editMode && (
-                <Button onClick={addPoint} className="mt-2">Add Point</Button>
+                <Button size={'sm'} onClick={addPoint} className="mt-2">Add Point</Button>
             )}
         </div>
     );
