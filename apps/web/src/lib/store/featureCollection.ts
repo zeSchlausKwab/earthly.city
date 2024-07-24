@@ -7,13 +7,10 @@ import { generateRandomColor } from "@earthly-land/common";
 import { publishFeatureCollectionEvent, updateFeatureCollectionEvent } from '../service/featureEventService';
 import { DiscoveredFeature } from './featureDiscovery';
 
-const featureCollectionAtom = atom<FeatureCollection & { naddr?: string }>({
+const featureCollectionAtom = atom<FeatureCollection & { naddr?: string, name: string, description: string }>({
     type: 'FeatureCollection',
     features: [],
     id: uuidv4(),
-    name: 'Default Collection',
-    description: 'A collection of geographic features',
-    // naddr will be undefined for new collections
 });
 
 const unsavedChangesAtom = atom<boolean>(false);

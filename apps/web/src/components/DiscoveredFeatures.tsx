@@ -22,7 +22,7 @@ const DiscoveredFeatures: React.FC = () => {
             <div className="p-4">
                 <h2 className="font-bold mb-4">Discovered Features</h2>
                 {discoveredFeatures.map((feature) => (
-                    <Card key={feature.naddr} className="mb-2 text-xs">
+                    <Card key={feature.id} className="mb-2 text-xs">
                         <CardHeader>
                             <CardTitle className='text-emerald-700 text-md'>{feature.name || 'Unnamed Feature'}</CardTitle>
                         </CardHeader>
