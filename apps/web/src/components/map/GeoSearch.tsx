@@ -4,7 +4,6 @@ import "leaflet-geosearch/dist/geosearch.css";
 
 const createGeoSearchInstance = () => {
     const provider = new OpenStreetMapProvider();
-    // @ts-ignore
     const searchControl = new GeoSearchControl({
         provider,
         style: 'bar',

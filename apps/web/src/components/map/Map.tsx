@@ -6,15 +6,26 @@ import { MapContainer, TileLayer, GeoJSON, Popup } from "react-leaflet";
 import { GeomanControl } from './GeomanControl';
 import Events from './Events';
 import { GeoSearchControlComponent } from './GeoSearch';
-import { useFeatureDiscovery } from '@/lib/store/featureDiscovery';
-import { Feature, GeoJsonObject } from 'geojson';
+import { DiscoveredFeature, useFeatureDiscovery } from '@/lib/store/featureDiscovery';
+import { Feature, GeoJsonObject, Point } from 'geojson';
 import { Layer, PathOptions } from 'leaflet';
+import L from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
-
+import { useFeatureCollection } from '@/lib/store/featureCollection';
 
 
 const Map = () => {
     const { discoveredFeatures, subscribeToFeatures } = useFeatureDiscovery();
+    const { loadFeatureCollection } = useFeatureCollection();
+
+    const handleEdit = (feature: DiscoveredFeature) => {
+        loadFeatureCollection(feature, true);
+    };
+
+    const handleView = (feature: DiscoveredFeature) => {
+        loadFeatureCollection(feature, false);
+    };
+
 
     useEffect(() => {
         const unsubscribe = subscribeToFeatures();
@@ -44,7 +55,7 @@ const Map = () => {
         };
     };
 
-    const onEachFeature = (feature: Feature, layer: Layer) => {
+    const onEachFeature = (feature: Feature, layer: Layer, parent: DiscoveredFeature) => {
         if (feature.properties) {
             const popupContent = ReactDOMServer.renderToString(
                 <div>
@@ -55,10 +66,42 @@ const Map = () => {
                             <p key={key}><strong>{key}:</strong> {String(value)}</p>
                         )
                     ))}
+                    <div className='flex flex-row gap-2'>
+                        <button class="edit-button">Edit</button>
+                        <button class="view-button">View</button>
+                    </div>
                 </div>
             );
-            layer.bindPopup(popupContent);
+
+            const popup = L.popup().setContent(popupContent);
+            layer.bindPopup(popup);
+
+            layer.on('popupopen', () => {
+                const popupElement = layer.getPopup()?.getElement();
+                const editButton = popupElement?.querySelector('.edit-button');
+                const viewButton = popupElement?.querySelector('.view-button');
+
+                if (editButton) {
+                    editButton.addEventListener('click', () => handleEdit(parent));
+                }
+                if (viewButton) {
+                    viewButton.addEventListener('click', () => handleView(parent));
+                }
+            });
         }
+    };
+
+
+
+    const pointToLayer = (feature: Feature<Point, any>, latlng: L.LatLng) => {
+        return L.circleMarker(latlng, {
+            radius: 8,
+            fillColor: feature.properties?.color || '#3388ff',
+            color: "#000",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
+        });
     };
 
     return (
@@ -83,7 +126,8 @@ const Map = () => {
                         data={feature.featureCollection}
                         pmIgnore={true}
                         style={getFeatureStyle}
-                        onEachFeature={onEachFeature}
+                        pointToLayer={pointToLayer}
+                        onEachFeature={(innerFeature, layer) => onEachFeature(innerFeature, layer, feature)}
                     />
                 ))}
             </MapContainer>
