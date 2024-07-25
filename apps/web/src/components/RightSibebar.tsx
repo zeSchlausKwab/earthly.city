@@ -14,20 +14,16 @@ import { useToast } from './ui/use-toast';
 const RightSidebar: React.FC = () => {
   const { featureCollection, updateFeature, updateCollectionMetadata, saveChanges, publishFeatureEvent, unsavedChanges, isEditing, startEditing, stopEditing } = useFeatureCollection();
   const { toast } = useToast();
-  const [editMode, setEditMode] = useState(false);
-
-  useEffect(() => {
-    setEditMode(!featureCollection.naddr);
-  }, [featureCollection.naddr]);
 
   const handleFeatureChange = (updatedFeature: Feature) => {
-    if (editMode) {
+    if (isEditing) {
       updateFeature(updatedFeature);
     }
   };
 
   const handleCollectionMetadataChange = (key: 'name' | 'description', value: string) => {
-    if (editMode) {
+    if (isEditing) {
+      console.log('updating collection metadata', key, value);
       updateCollectionMetadata({ [key]: value });
     }
   };
@@ -46,7 +42,7 @@ const RightSidebar: React.FC = () => {
         description: "Your feature collection has been updated successfully.",
       });
       // Exit edit mode after successful save
-      setEditMode(false);
+      startEditing();
     } else {
       toast({
         title: "Error saving changes",
@@ -56,16 +52,11 @@ const RightSidebar: React.FC = () => {
     }
   };
 
-  const toggleEditMode = () => {
-    setEditMode(!editMode);
-  };
-
   return (
     <ScrollArea className="p-4 h-full">
       <h2 className="text-xl font-bold mb-4">Feature Collection</h2>
       {isEditing ? (
         <>
-          {/* Render editing UI */}
           <div className="mb-4">
             <Label htmlFor="collection-name">Collection Name</Label>
             <Input
@@ -77,9 +68,10 @@ const RightSidebar: React.FC = () => {
           <div className="mb-4">
             <Label htmlFor="collection-description">Collection Description</Label>
             <PlateEditor
-              initialValue={[{ type: 'p', children: [{ text: featureCollection.description || '' }] }]}
+              initialValue={[{ type: 'p', children: [{ text: featureCollection.description }] }]}
               onChange={(value) => handleCollectionMetadataChange('description', JSON.stringify(value))}
-              readOnly={!editMode}
+              value={[{ type: 'p', children: [{ text: featureCollection.description }] }]}
+              readOnly={!isEditing}
             />
           </div>
           <h3 className="text-lg font-semibold mb-2">Features</h3>
@@ -87,7 +79,7 @@ const RightSidebar: React.FC = () => {
             <GeometryEditor
               key={feature.properties?.id}
               feature={feature}
-              mode={editMode ? 'edit' : 'view'}
+              mode={isEditing ? 'edit' : 'view'}
               onChange={handleFeatureChange}
             />
           ))}
@@ -100,10 +92,17 @@ const RightSidebar: React.FC = () => {
         </>
       ) : (
         <>
-          {/* Render view mode UI */}
           <p>Name: {featureCollection.name}</p>
           <p>Description: {featureCollection.description}</p>
           <p>Features: {featureCollection.features.length}</p>
+          {featureCollection.features.map((feature) => (
+            <GeometryEditor
+              key={feature.properties?.id}
+              feature={feature}
+              mode={isEditing ? 'edit' : 'view'}
+              onChange={handleFeatureChange}
+            />
+          ))}
           <Button onClick={startEditing} className="mt-4">
             Edit Collection
           </Button>

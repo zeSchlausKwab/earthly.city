@@ -26,7 +26,13 @@ const DiscoveredFeatures: React.FC = () => {
                 {discoveredFeatures.map((feature) => (
                     <Card key={feature.id} className="mb-2 text-xs">
                         <CardHeader>
-                            <CardTitle className='text-emerald-700 text-md'>{feature.name || 'Unnamed Feature'}</CardTitle>
+                            <CardTitle className='text-emerald-700 flex justify-between text-md'>
+                                <div>{feature.name || 'Unnamed Feature'}</div>
+                                <div className="flex space-x-2">
+                                    <Button size="xs" onClick={() => handleView(feature)}>View</Button>
+                                    <Button size="xs" onClick={() => handleEdit(feature)}>Edit</Button>
+                                </div>
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <span className="text-gray-500">d:{feature.description}</span>
@@ -34,10 +40,7 @@ const DiscoveredFeatures: React.FC = () => {
                             <p>Naddr: {feature.naddr}</p> */}
                             <p>Created at: {new Date(feature.createdAt * 1000).toLocaleString()}</p>
                             <p>Features: {feature.featureCollection.features.length}</p>
-                            <div className="mt-2 flex justify-end space-x-2">
-                                <Button size="sm" onClick={() => handleView(feature)}>View</Button>
-                                <Button size="sm" onClick={() => handleEdit(feature)}>Edit</Button>
-                            </div>
+
                         </CardContent>
                     </Card>
                 ))}

@@ -136,8 +136,6 @@ const Map = () => {
                     url="https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}.png?key=FTejVijNkqKWPbQui8i9"
                 />
                 <SetMapInstance />
-
-
                 {isEditing && <GeomanControl position="topleft" oneBlock />}
                 <Events />
                 <GeoSearchControlComponent />
