@@ -5,7 +5,7 @@ import { useMap } from "react-leaflet";
 
 const Events = () => {
     const map = useMap();
-    const { featureCollection, createFeature, updateFeature, deleteFeature } = useFeatureCollection();
+    const { featureCollection, createFeature, updateFeature, deleteFeature, isEditing } = useFeatureCollection();
     const geoJsonLayerRef = useRef<L.GeoJSON | null>(null);
 
     const attachLayerEvents = (layer: Layer, geoJSON: GeoJSON.Feature) => {
@@ -31,7 +31,7 @@ const Events = () => {
     };
 
     useEffect(() => {
-        if (map) {
+        if (map && isEditing) {
             map.on("pm:create", (e) => {
                 const layer = e.layer;
                 const geoJSON = layer.toGeoJSON() as GeoJSON.Feature;
@@ -76,7 +76,7 @@ const Events = () => {
                 }
             }
         };
-    }, [map, featureCollection]);
+    }, [map, featureCollection, isEditing]);
 
     return null;
 };

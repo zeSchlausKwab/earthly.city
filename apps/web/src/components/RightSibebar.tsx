@@ -12,7 +12,7 @@ import { Label } from './ui/label';
 import { useToast } from './ui/use-toast';
 
 const RightSidebar: React.FC = () => {
-  const { featureCollection, updateFeature, updateCollectionMetadata, saveChanges, publishFeatureEvent, unsavedChanges } = useFeatureCollection();
+  const { featureCollection, updateFeature, updateCollectionMetadata, saveChanges, publishFeatureEvent, unsavedChanges, isEditing, startEditing, stopEditing } = useFeatureCollection();
   const { toast } = useToast();
   const [editMode, setEditMode] = useState(false);
 
@@ -63,56 +63,51 @@ const RightSidebar: React.FC = () => {
   return (
     <ScrollArea className="p-4 h-full">
       <h2 className="text-xl font-bold mb-4">Feature Collection</h2>
-      <div className="mb-4">
-        <Label htmlFor="collection-name">Collection Name</Label>
-        <Input
-          id="collection-name"
-          value={featureCollection.name || ''}
-          onChange={(e) => handleCollectionMetadataChange('name', e.target.value)}
-          readOnly={!editMode}
-        />
-      </div>
-      <div className="mb-4">
-        <Label htmlFor="collection-description">Collection Description</Label>
-        <PlateEditor
-          initialValue={[{ type: 'p', children: [{ text: featureCollection.description || '' }] }]}
-          onChange={(value) => handleCollectionMetadataChange('description', JSON.stringify(value))}
-          readOnly={!editMode}
-        />
-      </div>
-      <h3 className="text-lg font-semibold mb-2">Features</h3>
-      {featureCollection.features.map((feature) => (
-        <GeometryEditor
-          key={feature.properties?.id}
-          feature={feature}
-          mode={editMode ? 'edit' : 'view'}
-          onChange={handleFeatureChange}
-        />
-      ))}
-      {editMode ? (
-        <Button
-          onClick={handleSaveChanges}
-          disabled={!unsavedChanges}
-          className="mt-4 mr-2"
-        >
-          Save Changes
-        </Button>
+      {isEditing ? (
+        <>
+          {/* Render editing UI */}
+          <div className="mb-4">
+            <Label htmlFor="collection-name">Collection Name</Label>
+            <Input
+              id="collection-name"
+              value={featureCollection.name || ''}
+              onChange={(e) => handleCollectionMetadataChange('name', e.target.value)}
+            />
+          </div>
+          <div className="mb-4">
+            <Label htmlFor="collection-description">Collection Description</Label>
+            <PlateEditor
+              initialValue={[{ type: 'p', children: [{ text: featureCollection.description || '' }] }]}
+              onChange={(value) => handleCollectionMetadataChange('description', JSON.stringify(value))}
+              readOnly={!editMode}
+            />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">Features</h3>
+          {featureCollection.features.map((feature) => (
+            <GeometryEditor
+              key={feature.properties?.id}
+              feature={feature}
+              mode={editMode ? 'edit' : 'view'}
+              onChange={handleFeatureChange}
+            />
+          ))}
+          <Button onClick={handleSaveChanges} disabled={!unsavedChanges} className="mt-4 mr-2">
+            Save Changes
+          </Button>
+          <Button onClick={stopEditing} variant="outline" className="mt-4">
+            Cancel
+          </Button>
+        </>
       ) : (
-        <Button
-          onClick={toggleEditMode}
-          className="mt-4 mr-2"
-        >
-          Edit Collection
-        </Button>
-      )}
-      {featureCollection.naddr && (
-        <Button
-          onClick={toggleEditMode}
-          variant="outline"
-          className="mt-4"
-        >
-          {editMode ? 'Cancel' : 'Edit'}
-        </Button>
+        <>
+          {/* Render view mode UI */}
+          <p>Name: {featureCollection.name}</p>
+          <p>Description: {featureCollection.description}</p>
+          <p>Features: {featureCollection.features.length}</p>
+          <Button onClick={startEditing} className="mt-4">
+            Edit Collection
+          </Button>
+        </>
       )}
     </ScrollArea>
   );

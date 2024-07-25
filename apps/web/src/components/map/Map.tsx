@@ -2,7 +2,7 @@
 
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect } from "react";
-import { MapContainer, TileLayer, GeoJSON, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, Popup, useMap } from "react-leaflet";
 import { GeomanControl } from './GeomanControl';
 import Events from './Events';
 import { GeoSearchControlComponent } from './GeoSearch';
@@ -13,10 +13,23 @@ import L from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
 import { useFeatureCollection } from '@/lib/store/featureCollection';
 
+const SetMapInstance: React.FC = () => {
+    const map = useMap();
+    const { setMap } = useFeatureCollection();
+
+    useEffect(() => {
+        setMap(map);
+    }, [map, setMap]);
+
+    return null;
+};
+
 
 const Map = () => {
     const { discoveredFeatures, subscribeToFeatures } = useFeatureDiscovery();
-    const { loadFeatureCollection } = useFeatureCollection();
+    const { loadFeatureCollection, zoomToFeatureBounds } = useFeatureCollection();
+    const { isEditing } = useFeatureCollection();
+
 
     const handleEdit = (feature: DiscoveredFeature) => {
         loadFeatureCollection(feature, true);
@@ -82,10 +95,16 @@ const Map = () => {
                 const viewButton = popupElement?.querySelector('.view-button');
 
                 if (editButton) {
-                    editButton.addEventListener('click', () => handleEdit(parent));
+                    editButton.addEventListener('click', () => {
+                        loadFeatureCollection(parent, true);
+                        zoomToFeatureBounds(parent);
+                    });
                 }
                 if (viewButton) {
-                    viewButton.addEventListener('click', () => handleView(parent));
+                    viewButton.addEventListener('click', () => {
+                        loadFeatureCollection(parent, false);
+                        zoomToFeatureBounds(parent);
+                    });
                 }
             });
         }
@@ -116,8 +135,10 @@ const Map = () => {
                     attribution='<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
                     url="https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}.png?key=FTejVijNkqKWPbQui8i9"
                 />
+                <SetMapInstance />
 
-                <GeomanControl position="topleft" oneBlock />
+
+                {isEditing && <GeomanControl position="topleft" oneBlock />}
                 <Events />
                 <GeoSearchControlComponent />
                 {discoveredFeatures.map((feature) => (

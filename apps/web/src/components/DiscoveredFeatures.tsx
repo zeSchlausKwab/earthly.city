@@ -7,7 +7,7 @@ import { Button } from './ui/button';
 
 const DiscoveredFeatures: React.FC = () => {
     const { discoveredFeatures } = useFeatureDiscovery();
-    const { loadFeatureCollection } = useFeatureCollection();
+    const { loadFeatureCollection, zoomToFeatureBounds } = useFeatureCollection();
 
     const handleEdit = (feature: DiscoveredFeature) => {
         loadFeatureCollection(feature, true);
@@ -15,6 +15,8 @@ const DiscoveredFeatures: React.FC = () => {
 
     const handleView = (feature: DiscoveredFeature) => {
         loadFeatureCollection(feature, false);
+        zoomToFeatureBounds(feature);
+
     };
 
     return (

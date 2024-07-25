@@ -1,9 +1,10 @@
 "use client"
 
-import { atom, useAtom } from 'jotai';
-import { FeatureCollection, Feature, GeoJsonProperties } from 'geojson';
-import { v4 as uuidv4 } from "uuid";
 import { generateRandomColor } from "@earthly-land/common";
+import { Feature, FeatureCollection, GeoJsonProperties } from 'geojson';
+import { atom, useAtom } from 'jotai';
+import type { Map as LeafletMap } from 'leaflet';
+import { v4 as uuidv4 } from "uuid";
 import { publishFeatureCollectionEvent, updateFeatureCollectionEvent } from '../service/featureEventService';
 import { DiscoveredFeature } from './featureDiscovery';
 
@@ -14,10 +15,33 @@ const featureCollectionAtom = atom<FeatureCollection & { naddr?: string, name: s
 });
 
 const unsavedChangesAtom = atom<boolean>(false);
+const isEditingAtom = atom<boolean>(false);
+const mapInstanceAtom = atom<LeafletMap | null>(null);
 
 export const useFeatureCollection = () => {
     const [featureCollection, setFeatureCollection] = useAtom(featureCollectionAtom);
     const [unsavedChanges, setUnsavedChanges] = useAtom(unsavedChangesAtom);
+    const [isEditing, setIsEditing] = useAtom(isEditingAtom);
+    const [mapInstance, setMapInstance] = useAtom(mapInstanceAtom);
+
+    const setMap = (map: LeafletMap) => {
+        console.log('Setting map instance:', map);
+        setMapInstance(map);
+    };
+
+    const zoomToFeatureBounds = (feature: DiscoveredFeature) => {
+        console.log('typeof windowmapInstance && feature.featureCollection:', window, mapInstance, feature.featureCollection);
+        if (typeof window !== 'undefined' && mapInstance && feature.featureCollection) {
+            const L = require('leaflet');
+            console.log('Zooming to feature bounds:', feature);
+            const bounds = L.geoJSON(feature.featureCollection).getBounds();
+            console.log('Bounds:', bounds);
+            mapInstance.flyToBounds(bounds, {
+                padding: [50, 50],
+                maxZoom: 14,
+            });
+        }
+    };
 
     const loadFeatureCollection = (feature: DiscoveredFeature, editMode: boolean) => {
         setFeatureCollection({
@@ -119,6 +143,14 @@ export const useFeatureCollection = () => {
         }
     };
 
+    const startEditing = () => {
+        setIsEditing(true);
+    };
+
+    const stopEditing = () => {
+        setIsEditing(false);
+    };
+
     return {
         featureCollection,
         createFeature,
@@ -130,5 +162,10 @@ export const useFeatureCollection = () => {
         publishFeatureEvent,
         loadFeatureCollection,
         unsavedChanges,
+        isEditing,
+        startEditing,
+        stopEditing,
+        setMap,
+        zoomToFeatureBounds,
     };
 };
