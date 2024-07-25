@@ -11,6 +11,12 @@ export interface DiscoveredFeature {
     description?: string;
 }
 
+export interface ExtendedFeatureCollection extends FeatureCollection {
+    naddr?: string;
+    name: string;
+    description: string;
+}
+
 export interface User {
     pubkey: string;
     name?: string;

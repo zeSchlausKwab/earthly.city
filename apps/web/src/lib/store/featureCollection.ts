@@ -7,13 +7,9 @@ import type { Map as LeafletMap } from 'leaflet';
 import { v4 as uuidv4 } from "uuid";
 import { ndkAtom } from ".";
 import { publishFeatureCollection, updateFeatureCollection } from "../api/ndk";
-import { DiscoveredFeature } from "../types";
+import { DiscoveredFeature, ExtendedFeatureCollection } from "../types";
 
-const featureCollectionAtom = atom<FeatureCollection & { naddr?: string, name: string, description: string }>({
-    type: 'FeatureCollection',
-    features: [],
-    id: uuidv4(),
-});
+const featureCollectionAtom = atom<ExtendedFeatureCollection | null>(null);
 
 const unsavedChangesAtom = atom<boolean>(false);
 const isEditingAtom = atom<boolean>(false);
@@ -26,9 +22,19 @@ export const useFeatureCollection = () => {
     const [featureCollection, setFeatureCollection] = useAtom(featureCollectionAtom);
     const [ndk] = useAtom(ndkAtom);
 
-
     const setMap = (map: LeafletMap) => {
         setMapInstance(map);
+    };
+
+    const createNewFeatureCollection = () => {
+        setFeatureCollection({
+            type: 'FeatureCollection',
+            features: [],
+            name: 'New Feature Collection',
+            description: 'Description of the new feature collection',
+        });
+        setUnsavedChanges(true);
+        startEditing();
     };
 
     const zoomToFeatureBounds = (feature: DiscoveredFeature) => {
@@ -47,13 +53,15 @@ export const useFeatureCollection = () => {
         setFeatureCollection({
             ...feature.featureCollection,
             naddr: feature.naddr,
-            name: feature.name,
-            description: feature.description,
+            name: feature.name || '',
+            description: feature.description || '',
         });
-        // setEditMode(editMode);
+        setIsEditing(editMode);
     };
 
     const createFeature = (geoJSON: Feature) => {
+        if (!featureCollection) return null;
+
         const newFeatureIndex = featureCollection.features.length;
 
         const newFeature: Feature = {
@@ -67,57 +75,72 @@ export const useFeatureCollection = () => {
             },
         };
 
-        setFeatureCollection((prev) => ({
-            ...prev,
-            features: [...prev.features, newFeature],
-        }));
+        setFeatureCollection((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                features: [...prev.features, newFeature],
+            };
+        });
         setUnsavedChanges(true);
 
         return newFeature;
     };
 
     const editFeature = (id: string, updatedProperties: Partial<GeoJsonProperties>) => {
-        setFeatureCollection((prev) => ({
-            ...prev,
-            features: prev.features.map((feature) => {
-                if (feature.properties?.id === id) {
-                    return {
-                        ...feature,
-                        properties: {
-                            ...feature.properties,
-                            ...updatedProperties,
-                        },
-                    };
-                }
-                return feature;
-            }),
-        }));
+        setFeatureCollection((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                features: prev.features.map((feature) => {
+                    if (feature.properties?.id === id) {
+                        return {
+                            ...feature,
+                            properties: {
+                                ...feature.properties,
+                                ...updatedProperties,
+                            },
+                        };
+                    }
+                    return feature;
+                }),
+            };
+        });
         setUnsavedChanges(true);
     };
 
     const updateFeature = (updatedFeature: Feature) => {
-        setFeatureCollection((prev) => ({
-            ...prev,
-            features: prev.features.map((feature) =>
-                feature.properties?.id === updatedFeature.properties?.id ? updatedFeature : feature
-            ),
-        }));
+        setFeatureCollection((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                features: prev.features.map((feature) =>
+                    feature.properties?.id === updatedFeature.properties?.id ? updatedFeature : feature
+                ),
+            };
+        });
         setUnsavedChanges(true);
     };
 
     const deleteFeature = (id: string) => {
-        setFeatureCollection((prev) => ({
-            ...prev,
-            features: prev.features.filter((feature) => feature.properties?.id !== id),
-        }));
+        setFeatureCollection((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                features: prev.features.filter((feature) => feature.properties?.id !== id),
+            };
+        });
         setUnsavedChanges(true);
     };
 
-    const updateCollectionMetadata = (metadata: Partial<Pick<FeatureCollection, 'name' | 'description'>>) => {
-        setFeatureCollection((prev) => ({
-            ...prev,
-            ...metadata,
-        }));
+    const updateCollectionMetadata = (metadata: Partial<Pick<ExtendedFeatureCollection, 'name' | 'description'>>) => {
+        setFeatureCollection((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                ...metadata,
+            };
+        });
         setUnsavedChanges(true);
     };
 
@@ -151,10 +174,15 @@ export const useFeatureCollection = () => {
 
     const stopEditing = () => {
         setIsEditing(false);
+        setFeatureCollection(null);
+        setUnsavedChanges(false);
     };
+
+
 
     return {
         featureCollection,
+        createNewFeatureCollection,
         createFeature,
         updateFeature,
         deleteFeature,
