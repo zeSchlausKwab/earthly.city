@@ -5,8 +5,9 @@ import { Feature, FeatureCollection, GeoJsonProperties } from 'geojson';
 import { atom, useAtom } from 'jotai';
 import type { Map as LeafletMap } from 'leaflet';
 import { v4 as uuidv4 } from "uuid";
-import { publishFeatureCollectionEvent, updateFeatureCollectionEvent } from '../service/featureEventService';
-import { DiscoveredFeature } from './featureDiscovery';
+import { ndkAtom } from ".";
+import { publishFeatureCollection, updateFeatureCollection } from "../api/ndk";
+import { DiscoveredFeature } from "../types";
 
 const featureCollectionAtom = atom<FeatureCollection & { naddr?: string, name: string, description: string }>({
     type: 'FeatureCollection',
@@ -19,26 +20,25 @@ const isEditingAtom = atom<boolean>(false);
 const mapInstanceAtom = atom<LeafletMap | null>(null);
 
 export const useFeatureCollection = () => {
-    const [featureCollection, setFeatureCollection] = useAtom(featureCollectionAtom);
     const [unsavedChanges, setUnsavedChanges] = useAtom(unsavedChangesAtom);
     const [isEditing, setIsEditing] = useAtom(isEditingAtom);
     const [mapInstance, setMapInstance] = useAtom(mapInstanceAtom);
+    const [featureCollection, setFeatureCollection] = useAtom(featureCollectionAtom);
+    const [ndk] = useAtom(ndkAtom);
+
 
     const setMap = (map: LeafletMap) => {
-        console.log('Setting map instance:', map);
         setMapInstance(map);
     };
 
     const zoomToFeatureBounds = (feature: DiscoveredFeature) => {
-        console.log('typeof windowmapInstance && feature.featureCollection:', window, mapInstance, feature.featureCollection);
         if (typeof window !== 'undefined' && mapInstance && feature.featureCollection) {
             const L = require('leaflet');
-            console.log('Zooming to feature bounds:', feature);
             const bounds = L.geoJSON(feature.featureCollection).getBounds();
-            console.log('Bounds:', bounds);
             mapInstance.flyToBounds(bounds, {
                 padding: [50, 50],
                 maxZoom: 14,
+                duration: 0.5,
             });
         }
     };
@@ -122,23 +122,25 @@ export const useFeatureCollection = () => {
     };
 
     const publishFeatureEvent = async () => {
+        if (!ndk || !featureCollection) return false;
+
         try {
-            await publishFeatureCollectionEvent(featureCollection);
-            setUnsavedChanges(false);
+            await publishFeatureCollection(ndk, featureCollection);
             return true;
         } catch (error) {
-            console.error('Error saving changes:', error);
+            console.error('Error publishing feature collection:', error);
             return false;
         }
     };
 
     const saveChanges = async () => {
+        if (!ndk || !featureCollection) return false;
+
         try {
-            await updateFeatureCollectionEvent(featureCollection);
-            setUnsavedChanges(false);
+            await updateFeatureCollection(ndk, featureCollection);
             return true;
         } catch (error) {
-            console.error('Error saving changes:', error);
+            console.error('Error updating feature collection:', error);
             return false;
         }
     };

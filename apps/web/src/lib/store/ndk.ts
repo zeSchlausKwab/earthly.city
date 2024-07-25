@@ -1,31 +1,34 @@
-// lib/store/ndk-store.ts
+// src/lib/store/ndk.ts
+import { useAtom } from 'jotai';
+import { ndkAtom } from '../store';
 import NDK, { NDKNip07Signer } from '@nostr-dev-kit/ndk';
 
-class NDKStore {
-    private ndk: NDK | null = null;
+export const useNDK = () => {
+    const [ndk, setNDK] = useAtom(ndkAtom);
 
-    async initialize() {
+    const initialize = async () => {
+        if (ndk) return;
+
         const signer = new NDKNip07Signer();
-
-        this.ndk = new NDK({
+        const newNDK = new NDK({
             explicitRelayUrls: [
                 'wss://relay.earthly.land',
-                // 'wss://relay.damus.io',
-                // 'wss://relay.nostr.band',
-                // 'wss://nos.lol',
+                "wss://nostr-relay.wlvs.space",
+                "wss://relay.damus.io",
+                "wss://nostr-pub.wellorder.net",
+                "wss://relay.nostr.info",
+                "wss://nostr.bitcoiner.social",
+                "wss://nostr.onsats.org",
+                "wss://nostr.oxtr.dev",
+                "wss://nostr.fmt.wiz.biz",
+                "wss://nproxy.zerologin.com",
             ],
             signer
         });
 
-        await this.ndk.connect();
-    }
+        await newNDK.connect();
+        setNDK(newNDK);
+    };
 
-    getNDK() {
-        if (!this.ndk) {
-            throw new Error('NDK not initialized');
-        }
-        return this.ndk;
-    }
-}
-
-export const ndkStore = new NDKStore();
+    return { ndk, initialize };
+};

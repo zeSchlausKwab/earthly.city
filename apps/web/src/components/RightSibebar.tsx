@@ -68,9 +68,9 @@ const RightSidebar: React.FC = () => {
           <div className="mb-4">
             <Label htmlFor="collection-description">Collection Description</Label>
             <PlateEditor
-              initialValue={[{ type: 'p', children: [{ text: featureCollection.description }] }]}
+              initialValue={[{ type: 'p', children: [{ text: featureCollection.description ?? '' }] }]}
               onChange={(value) => handleCollectionMetadataChange('description', JSON.stringify(value))}
-              value={[{ type: 'p', children: [{ text: featureCollection.description }] }]}
+              value={[{ type: 'p', children: [{ text: featureCollection.description ?? '' }] }]}
               readOnly={!isEditing}
             />
           </div>

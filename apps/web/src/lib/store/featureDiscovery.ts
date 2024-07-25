@@ -1,63 +1,55 @@
-"use client"
-
-import { NDKEvent, NDKFilter, NDKKind } from '@nostr-dev-kit/ndk';
-import { FeatureCollection } from 'geojson';
-import { atom, useAtom } from 'jotai';
-import { nip19 } from 'nostr-tools';
-import { ndkStore } from './ndk';
-
-export interface DiscoveredFeature {
-    id: string;
-    naddr: string;
-    pubkey: string;
-    createdAt: number;
-    featureCollection: FeatureCollection;
-    name?: string;
-    description?: string;
-}
-
-const discoveredFeaturesAtom = atom<DiscoveredFeature[]>([]);
+// src/lib/store/featureDiscovery.ts
+import { useAtom } from 'jotai';
+import { discoveredFeaturesAtom, featuresErrorAtom, isLoadingFeaturesAtom, ndkAtom } from '../store';
+import { subscribeToFeatures } from '../api/ndk';
+import { DiscoveredFeature } from '../types';
+import { useRef, useCallback, useEffect } from 'react';
+import { handleError } from '../utils/errorHandler';
 
 export const useFeatureDiscovery = () => {
     const [discoveredFeatures, setDiscoveredFeatures] = useAtom(discoveredFeaturesAtom);
+    const [ndk] = useAtom(ndkAtom);
+    const [, setIsLoadingFeatures] = useAtom(isLoadingFeaturesAtom);
+    const [, setFeaturesError] = useAtom(featuresErrorAtom);
+    const subscriptionRef = useRef<(() => void) | null>(null);
 
-    const subscribeToFeatures = () => {
-        const ndk = ndkStore.getNDK();
-        const filter: NDKFilter = { kinds: [37515 as NDKKind] };
+    const startSubscription = useCallback(() => {
+        if (!ndk || subscriptionRef.current) return;
 
-        const subscription = ndk.subscribe(filter, { closeOnEose: false });
+        setIsLoadingFeatures(true);
+        setFeaturesError(null);
 
-        subscription.on('event', (event: NDKEvent) => {
-            try {
-                const content = JSON.parse(event.content);
-                if (content.type === 'FeatureCollection') {
-                    const newFeature: DiscoveredFeature = {
-                        id: event.id,
-                        pubkey: event.pubkey,
-                        naddr: nip19.naddrEncode({
-                            identifier: event.tagValue('d'),
-                            pubkey: event.pubkey,
-                            kind: 37515,
-                        }),
-                        createdAt: event.created_at ?? 0, // Use 0 or another appropriate default
-                        featureCollection: content,
-                        name: event.tagValue('name'),
-                        description: event.tagValue('description'),
-                    };
-                    setDiscoveredFeatures((prev) => [...prev, newFeature]);
-                }
-            } catch (error) {
-                console.error('Error parsing feature event:', error);
-            }
-        });
+        try {
+            subscriptionRef.current = subscribeToFeatures(ndk, (newFeature: DiscoveredFeature) => {
+                setDiscoveredFeatures((prev) => {
+                    if (!prev.some(f => f.id === newFeature.id)) {
+                        return [...prev, newFeature];
+                    }
+                    return prev;
+                });
+            });
+            setIsLoadingFeatures(false);
+        } catch (error) {
+            handleError(error);
+            setFeaturesError('Failed to start feature subscription');
+            setIsLoadingFeatures(false);
+        }
+    }, [ndk, setDiscoveredFeatures, setIsLoadingFeatures, setFeaturesError]);
 
-        return () => {
-            subscription.stop();
-        };
-    };
+    const stopSubscription = useCallback(() => {
+        if (subscriptionRef.current) {
+            subscriptionRef.current();
+            subscriptionRef.current = null;
+        }
+    }, []);
+
+    useEffect(() => {
+        return () => stopSubscription();
+    }, [stopSubscription]);
 
     return {
         discoveredFeatures,
-        subscribeToFeatures,
+        startSubscription,
+        stopSubscription,
     };
 };

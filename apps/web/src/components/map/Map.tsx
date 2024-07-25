@@ -2,16 +2,33 @@
 
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect } from "react";
-import { MapContainer, TileLayer, GeoJSON, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
 import { GeomanControl } from './GeomanControl';
 import Events from './Events';
 import { GeoSearchControlComponent } from './GeoSearch';
-import { DiscoveredFeature, useFeatureDiscovery } from '@/lib/store/featureDiscovery';
+import { useFeatureDiscovery } from '@/lib/store/featureDiscovery';
 import { Feature, GeoJsonObject, Point } from 'geojson';
 import { Layer, PathOptions } from 'leaflet';
 import L from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
 import { useFeatureCollection } from '@/lib/store/featureCollection';
+import { useAtom } from 'jotai';
+import { featuresErrorAtom, isLoadingFeaturesAtom, ndkAtom } from '@/lib/store';
+import ErrorBoundary from '../ErrorBoundary';
+import LoadingSpinner from '../LoadingSpinner';
+import MarkerClusterGroup from "react-leaflet-cluster"
+
+const svgIcon = L.divIcon({
+    html: `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+      </svg>
+    `,
+    className: "svg-icon",
+    iconSize: [24, 24],
+    iconAnchor: [12, 24],
+});
+
 
 const SetMapInstance: React.FC = () => {
     const map = useMap();
@@ -24,28 +41,27 @@ const SetMapInstance: React.FC = () => {
     return null;
 };
 
-
-const Map = () => {
-    const { discoveredFeatures, subscribeToFeatures } = useFeatureDiscovery();
-    const { loadFeatureCollection, zoomToFeatureBounds } = useFeatureCollection();
-    const { isEditing } = useFeatureCollection();
-
-
-    const handleEdit = (feature: DiscoveredFeature) => {
-        loadFeatureCollection(feature, true);
-    };
-
-    const handleView = (feature: DiscoveredFeature) => {
-        loadFeatureCollection(feature, false);
-    };
-
+const MapContent = () => {
+    const { discoveredFeatures, startSubscription, stopSubscription } = useFeatureDiscovery();
+    const { loadFeatureCollection, zoomToFeatureBounds, isEditing } = useFeatureCollection();
+    const [ndk] = useAtom(ndkAtom);
+    const [isLoadingFeatures] = useAtom(isLoadingFeaturesAtom);
+    const [featuresError] = useAtom(featuresErrorAtom);
 
     useEffect(() => {
-        const unsubscribe = subscribeToFeatures();
-        return () => {
-            unsubscribe();
-        };
-    }, []);
+        if (ndk) {
+            startSubscription();
+            return () => stopSubscription();
+        }
+    }, [ndk, startSubscription, stopSubscription]);
+
+    if (isLoadingFeatures) {
+        return <LoadingSpinner />;
+    }
+
+    if (featuresError) {
+        return <div>Error loading features: {featuresError}</div>;
+    }
 
     const getFeatureStyle = (feature: GeoJsonObject | undefined): PathOptions => {
         if (!feature) {
@@ -59,7 +75,6 @@ const Map = () => {
                 fillOpacity: 0.7
             };
         }
-        // Default style if no color is specified
         return {
             color: '#3388ff',
             weight: 3,
@@ -68,7 +83,7 @@ const Map = () => {
         };
     };
 
-    const onEachFeature = (feature: Feature, layer: Layer, parent: DiscoveredFeature) => {
+    const onEachFeature = (feature: Feature, layer: Layer, parent: any) => {
         if (feature.properties) {
             const popupContent = ReactDOMServer.renderToString(
                 <div>
@@ -80,8 +95,8 @@ const Map = () => {
                         )
                     ))}
                     <div className='flex flex-row gap-2'>
-                        <button class="edit-button">Edit</button>
-                        <button class="view-button">View</button>
+                        <button className="edit-button">Edit</button>
+                        <button className="view-button">View</button>
                     </div>
                 </div>
             );
@@ -110,48 +125,47 @@ const Map = () => {
         }
     };
 
-
-
     const pointToLayer = (feature: Feature<Point, any>, latlng: L.LatLng) => {
-        return L.circleMarker(latlng, {
-            radius: 8,
-            fillColor: feature.properties?.color || '#3388ff',
-            color: "#000",
-            weight: 1,
+        return new L.Marker(latlng, {
+            icon: svgIcon,
             opacity: 1,
-            fillOpacity: 0.8
         });
     };
 
     return (
-        <>
-            <MapContainer
-                center={[51.505, -0.09]}
-                zoom={11}
-                scrollWheelZoom={true}
-                style={{ width: "100%", height: "100%" }}
-            >
-                <TileLayer
-                    attribution='<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
-                    url="https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}.png?key=FTejVijNkqKWPbQui8i9"
+        <MapContainer
+            center={[51.270937, -0.005493]}
+            zoom={11}
+            scrollWheelZoom={true}
+            style={{ width: "100%", height: "100%", zIndex: 0 }}
+        >
+            <TileLayer
+                attribution='<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
+                url="https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}.png?key=FTejVijNkqKWPbQui8i9"
+            />
+            <SetMapInstance />
+            {isEditing && <GeomanControl position="topleft" oneBlock />}
+            <Events />
+            <MarkerClusterGroup />
+            <GeoSearchControlComponent />
+            {discoveredFeatures.map((feature) => (
+                <GeoJSON
+                    key={feature.id}
+                    data={feature.featureCollection}
+                    pmIgnore={true}
+                    style={getFeatureStyle}
+                    pointToLayer={pointToLayer}
+                    onEachFeature={(innerFeature, layer) => onEachFeature(innerFeature, layer, feature)}
                 />
-                <SetMapInstance />
-                {isEditing && <GeomanControl position="topleft" oneBlock />}
-                <Events />
-                <GeoSearchControlComponent />
-                {discoveredFeatures.map((feature) => (
-                    <GeoJSON
-                        key={feature.id}
-                        data={feature.featureCollection}
-                        pmIgnore={true}
-                        style={getFeatureStyle}
-                        pointToLayer={pointToLayer}
-                        onEachFeature={(innerFeature, layer) => onEachFeature(innerFeature, layer, feature)}
-                    />
-                ))}
-            </MapContainer>
-        </>
+            ))}
+        </MapContainer>
     );
 };
+
+const Map = () => (
+    <ErrorBoundary fallback={<div>Something went wrong with the map. Please try refreshing the page.</div>}>
+        <MapContent />
+    </ErrorBoundary>
+);
 
 export default Map;
