@@ -1,24 +1,49 @@
-version: '3.8'
+version: "3.8"
 services:
-  phoenixd:
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile
-    ports:
-      - "9740:9740"
-    volumes:
-      - ./phoenix_data:/root/.phoenix
-    command: ./phoenixd
+  # phoenixd:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/Dockerfile
+  #   ports:
+  #     - "${PHOENIXD_PORT}:${PHOENIXD_PORT}"
+  #   volumes:
+  #     - ./phoenix_data:/root/.phoenix
+  #   command: ./phoenixd
+
   db:
     image: postgres:13
     environment:
-      POSTGRES_USER: earthly
-      POSTGRES_PASSWORD: earthlypassword
-      POSTGRES_DB: earthly_db
+      POSTGRES_USER: ${POSTGRES_USER_EARTHLY}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_EARTHLY}
+      POSTGRES_DB: ${POSTGRES_DB_EARTHLY}
     ports:
-      - '5432:5432'
+      - "${EARTHLY_DB_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  khatru_db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER_KHATRU}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_KHATRU}
+      POSTGRES_DB: ${POSTGRES_DB_KHATRU}
+    ports:
+      - "${KHATRU_DB_PORT}:5432"
+    volumes:
+      - khatru_postgres_data:/var/lib/postgresql/data
+
+  # khatru:
+  #   build:
+  #     context: ./apps/khatru
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "${KHATRU_PORT}:${KHATRU_PORT}"
+  #   environment:
+  #     - KHATRU_DB_URL=${KHATRU_DB_URL}
+  #     - KHATRU_PORT=${KHATRU_PORT}
+  #   depends_on:
+  #     - khatru_db
+
 volumes:
   postgres_data:
+  khatru_postgres_data:

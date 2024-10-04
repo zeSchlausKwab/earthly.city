@@ -2,4 +2,3 @@ node_modules
 dist
 build
 .svelte-kit
-apps/relay

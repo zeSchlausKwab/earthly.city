@@ -2,4 +2,9 @@ node_modules
 .DS_Store
 .env
 *.log
-./phoenix_data
+phoenix_data/
+
+dist/
+.idea/
+
+.cursorignore

@@ -149,18 +149,20 @@ const MapContent = () => {
       <SetMapInstance />
       {isEditing && <GeomanControl position="topleft" oneBlock />}
       <Events />
-      <MarkerClusterGroup />
+      <MarkerClusterGroup>
+        {discoveredFeatures.map((feature) => (
+          <GeoJSON
+            key={feature.id}
+            data={feature.featureCollection}
+            pmIgnore={true}
+            style={getFeatureStyle}
+            pointToLayer={pointToLayer}
+            onEachFeature={(innerFeature, layer) => onEachFeature(innerFeature, layer, feature)}
+          />
+        ))}
+      </MarkerClusterGroup>
+
       <GeoSearchControlComponent />
-      {discoveredFeatures.map((feature) => (
-        <GeoJSON
-          key={feature.id}
-          data={feature.featureCollection}
-          pmIgnore={true}
-          style={getFeatureStyle}
-          pointToLayer={pointToLayer}
-          onEachFeature={(innerFeature, layer) => onEachFeature(innerFeature, layer, feature)}
-        />
-      ))}
     </MapContainer>
   )
 }
