@@ -21,7 +21,6 @@ export const useFeatureDiscovery = () => {
 
     try {
       subscriptionRef.current = subscribeToFeatures(ndk, (newFeature: DiscoveredFeature) => {
-        console.log('newFeature', newFeature)
         setDiscoveredFeatures((prev) => {
           if (!prev.some((f) => f.id === newFeature.id)) {
             return [...prev, newFeature]
