@@ -18,13 +18,13 @@ export default function Home() {
           <div className="flex flex-col h-screen">
             <Header />
             <div className="flex flex-1 overflow-hidden">
-              <aside className="w-1/4 p-4">
+              <aside className="w-1/5 p-2">
                 <DiscoverySidebar />
               </aside>
-              <main className="flex-1 p-4">
+              <main className="flex-1">
                 <MapWrapper />
               </main>
-              <aside className="w-1/4 p-4">
+              <aside className="w-1/5">
                 <RightSidebar />
               </aside>
             </div>

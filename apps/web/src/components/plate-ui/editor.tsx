@@ -1,10 +1,10 @@
 import React from 'react';
 
-import type { PlateContentProps } from '@udecode/plate-common';
+import type { PlateContentProps } from '@udecode/plate-common/react';
 import type { VariantProps } from 'class-variance-authority';
 
-import { cn } from "@/lib/utils"
-import { PlateContent } from '@udecode/plate-common';
+import { cn } from '@udecode/cn';
+import { PlateContent } from '@udecode/plate-common/react';
 import { cva } from 'class-variance-authority';
 
 const editorVariants = cva(
@@ -62,9 +62,8 @@ const Editor = React.forwardRef<HTMLDivElement, EditorProps>(
     ref
   ) => {
     return (
-      <div className="relative w-full" ref={ref}>
+      <div ref={ref} className="relative w-full">
         <PlateContent
-          aria-disabled={disabled}
           className={cn(
             editorVariants({
               disabled,
@@ -75,8 +74,10 @@ const Editor = React.forwardRef<HTMLDivElement, EditorProps>(
             }),
             className
           )}
-          disableDefaultStyles
           readOnly={disabled ?? readOnly}
+          aria-disabled={disabled}
+          data-plate-selectable
+          disableDefaultStyles
           {...props}
         />
       </div>
