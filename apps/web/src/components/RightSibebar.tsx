@@ -1,15 +1,15 @@
-"use client"
+'use client'
 
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useFeatureCollection } from '@/lib/store/featureCollection';
-import { Feature } from 'geojson';
-import React, { useState } from 'react';
-import GeometryEditor from './geometry-editors/GeometryEditor';
-import { PlateEditor } from './PlateEditor';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { useToast } from './ui/use-toast';
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { useFeatureCollection } from '@/lib/store/featureCollection'
+import { Feature } from 'geojson'
+import React, { useState } from 'react'
+import GeometryEditor from './geometry-editors/GeometryEditor'
+import { PlateEditor } from './PlateEditor'
+import { Button } from './ui/button'
+import { Input } from './ui/input'
+import { Label } from './ui/label'
+import { useToast } from './ui/use-toast'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,9 +17,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import CollectionForm from './CollectionForm';
-import CollectionView from './CollectionView';
+} from '@/components/ui/dropdown-menu'
+import CollectionForm from './CollectionForm'
+import CollectionView from './CollectionView'
 
 const RightSidebar: React.FC = () => {
   const {
@@ -33,55 +33,56 @@ const RightSidebar: React.FC = () => {
     isEditing,
     startEditing,
     stopEditing,
-  } = useFeatureCollection();
-  const { toast } = useToast();
+  } = useFeatureCollection()
+  const { toast } = useToast()
 
-  const [showCollectionForm, setShowCollectionForm] = useState(false);
-  const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
+  const [showCollectionForm, setShowCollectionForm] = useState(false)
+  const [selectedCollection, setSelectedCollection] = useState<string | null>(null)
 
   const handleCreateNew = (type: string) => {
     if (type === 'feature') {
-      createNewFeatureCollection();
+      createNewFeatureCollection()
     } else if (type === 'collection') {
-      setShowCollectionForm(true);
+      setShowCollectionForm(true)
     }
-  };
+  }
 
   const handleFeatureChange = (updatedFeature: Feature) => {
     if (isEditing) {
-      updateFeature(updatedFeature);
+      updateFeature(updatedFeature)
     }
-  };
+  }
 
   const handleCollectionMetadataChange = (key: 'name' | 'description', value: string) => {
+    console.log('handleCollectionMetadataChange', key, value)
     if (isEditing) {
-      updateCollectionMetadata({ [key]: value });
+      updateCollectionMetadata({ [key]: value })
     }
-  };
+  }
 
   const handleSaveChanges = async () => {
-    let success = false;
+    let success = false
 
     if (featureCollection?.naddr) {
-      success = await saveChanges();
+      success = await saveChanges()
     } else {
-      success = await publishFeatureEvent();
+      success = await publishFeatureEvent()
     }
 
     if (success) {
       toast({
-        title: "Changes saved",
-        description: "Your feature collection has been updated successfully.",
-      });
-      stopEditing();
+        title: 'Changes saved',
+        description: 'Your feature collection has been updated successfully.',
+      })
+      stopEditing()
     } else {
       toast({
-        title: "Error saving changes",
-        description: "There was a problem saving your changes. Please try again.",
-        variant: "destructive",
-      });
+        title: 'Error saving changes',
+        description: 'There was a problem saving your changes. Please try again.',
+        variant: 'destructive',
+      })
     }
-  };
+  }
 
   const renderCreateNew = () => (
     <DropdownMenu>
@@ -92,10 +93,12 @@ const RightSidebar: React.FC = () => {
         <DropdownMenuLabel>Create New</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => handleCreateNew('feature')}>Feature Collection</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleCreateNew('collection')}>Collection of Feature Collections</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleCreateNew('collection')}>
+          Collection of Feature Collections
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 
   const renderFeatureCollection = () => (
     <div>
@@ -121,12 +124,7 @@ const RightSidebar: React.FC = () => {
           </div>
           <h3 className="text-lg font-semibold mb-2">Features</h3>
           {featureCollection?.features.map((feature) => (
-            <GeometryEditor
-              key={feature.properties?.id}
-              feature={feature}
-              mode='edit'
-              onChange={handleFeatureChange}
-            />
+            <GeometryEditor key={feature.properties?.id} feature={feature} mode="edit" onChange={handleFeatureChange} />
           ))}
           <Button onClick={handleSaveChanges} disabled={!unsavedChanges} className="mt-4 mr-2">
             Save Changes
@@ -141,12 +139,7 @@ const RightSidebar: React.FC = () => {
           <p>Description: {featureCollection?.description}</p>
           <p>Features: {featureCollection?.features.length}</p>
           {featureCollection?.features.map((feature) => (
-            <GeometryEditor
-              key={feature.properties?.id}
-              feature={feature}
-              mode='view'
-              onChange={handleFeatureChange}
-            />
+            <GeometryEditor key={feature.properties?.id} feature={feature} mode="view" onChange={handleFeatureChange} />
           ))}
           <Button onClick={startEditing} className="mt-4">
             Edit Collection
@@ -154,7 +147,7 @@ const RightSidebar: React.FC = () => {
         </div>
       )}
     </div>
-  );
+  )
 
   return (
     <ScrollArea className="p-4 h-full">
@@ -163,19 +156,17 @@ const RightSidebar: React.FC = () => {
       {showCollectionForm && (
         <CollectionForm
           onSubmit={(collectionId) => {
-            setShowCollectionForm(false);
-            setSelectedCollection(collectionId);
+            setShowCollectionForm(false)
+            setSelectedCollection(collectionId)
           }}
         />
       )}
 
-      {selectedCollection && (
-        <CollectionView collectionId={selectedCollection} />
-      )}
+      {selectedCollection && <CollectionView collectionId={selectedCollection} />}
 
       {featureCollection && renderFeatureCollection()}
     </ScrollArea>
-  );
+  )
 }
 
-export default RightSidebar;
+export default RightSidebar
