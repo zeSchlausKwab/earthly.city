@@ -12,8 +12,8 @@ github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0 h1:rpfIENRNNilwHwZeG5+P150SMrnN
 github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0/go.mod h1:v57UDF4pDQJcEfFUCRop3lJL149eHGSe9Jvczhzjo/0=
 github.com/fasthttp/websocket v1.5.7 h1:0a6o2OfeATvtGgoMKleURhLT6JqWPg7fYfWnH4KHau4=
 github.com/fasthttp/websocket v1.5.7/go.mod h1:bC4fxSono9czeXHQUVKxsC0sNjbm7lPJR04GDFqClfU=
-github.com/fiatjaf/eventstore v0.11.0 h1:4bKq8tw0CClNYSp7hAQ4YjLOVQ7Syeoe1ZWkROW7PwI=
-github.com/fiatjaf/eventstore v0.11.0/go.mod h1:oCHPB4TprrNjbhH2kjMKt1O48O1pk3VxAy5iZkB5Fb0=
+github.com/fiatjaf/eventstore v0.11.3 h1:Lqm/8fx0R+Q9jVAxx4y+TNA9UliXVYIhOSRuJgW8T7o=
+github.com/fiatjaf/eventstore v0.11.3/go.mod h1:oCHPB4TprrNjbhH2kjMKt1O48O1pk3VxAy5iZkB5Fb0=
 github.com/fiatjaf/khatru v0.8.3 h1:bCXyfoPYesmJ00jmi7IyoLpE/CB/tPUw4nP62/3jbBw=
 github.com/fiatjaf/khatru v0.8.3/go.mod h1:44X/Mcc+2ObOqz+/fDbhAW3BeUEPKxDgrX9St/cXEKc=
 github.com/go-sql-driver/mysql v1.6.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=

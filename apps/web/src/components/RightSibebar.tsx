@@ -54,7 +54,6 @@ const RightSidebar: React.FC = () => {
   }
 
   const handleCollectionMetadataChange = (key: 'name' | 'description', value: string) => {
-    console.log('handleCollectionMetadataChange', key, value)
     if (isEditing) {
       updateCollectionMetadata({ [key]: value })
     }
@@ -116,10 +115,9 @@ const RightSidebar: React.FC = () => {
           <div className="mb-4">
             <Label htmlFor="collection-description">Collection Description</Label>
             <PlateEditor
-              initialValue={[{ type: 'p', children: [{ text: featureCollection?.description ?? '' }] }]}
-              onChange={(value) => handleCollectionMetadataChange('description', JSON.stringify(value))}
-              value={[{ type: 'p', children: [{ text: featureCollection?.description ?? '' }] }]}
-              readOnly={false}
+              onChange={(value) => handleCollectionMetadataChange('description', value)}
+              readOnly={!isEditing}
+              initialValue={featureCollection?.description || ''}
             />
           </div>
           <h3 className="text-lg font-semibold mb-2">Features</h3>

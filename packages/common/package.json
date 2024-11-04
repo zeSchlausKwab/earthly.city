@@ -1,18 +1,22 @@
 {
-  "name": "@earthly-land/common",
-  "version": "1.0.0",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
-  "scripts": {
-    "lint": "eslint \"src/**/*.ts\"",
-    "format": "prettier --write \"src/**/*.ts\""
-  },
-  "dependencies": {
-    "zod": "^3.23.8"
-  },
-  "devDependencies": {
-    "@earthly-land/eslint": "workspace:*",
-    "@earthly-land/prettier": "workspace:*",
-    "typescript": "^5.6.2"
-  }
+    "name": "@earthly-land/common",
+    "version": "1.0.0",
+    "main": "src/index.ts",
+    "types": "src/index.ts",
+    "scripts": {
+        "lint": "eslint \"src/**/*.ts\"",
+        "format": "prettier --write \"src/**/*.ts\""
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@nostr-dev-kit/ndk": "2.10.5",
+        "zod": "^3.23.8",
+        "geojson": "0.5.0",
+        "@earthly-land/eslint": "workspace:*",
+        "@earthly-land/prettier": "workspace:*",
+        "typescript": "^5.6.2",
+        "@types/geojson": "7946.0.14",
+        "uuid": "11.0.2",
+        "@types/uuid": "10.0.0"
+    }
 }

@@ -6,7 +6,7 @@
     "lint": "eslint \"apps/!(relay)/**/*.{js,ts,svelte}\" \"packages/**/*.{js,ts}\"",
     "format": "prettier --write \"apps/!(relay)/**/*.{js,ts,svelte,json,md}\" \"packages/**/*.{js,ts,json,md}\"",
     "dev": "pnpm run --parallel --filter \"./apps/{web,backend}\" dev",
-    "relay:start": "./scripts/start_relay",
+    "relay:start": "go run ./apps/khatru/main.go",
     "relay:stop": "./scripts/stop_relay",
     "build": "pnpm run --filter \"./packages/*\" build && pnpm run --filter \"./apps/{web,backend}\" build",
     "start": "pnpm run --parallel --filter \"./apps/{web,backend}\" start",
@@ -16,6 +16,11 @@
     "db:migrate": "pnpm --filter @earthly-land/db migrate",
     "studio": "cd packages/db && pnpm drizzle-kit studio"
   },
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "tooling/*"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC"

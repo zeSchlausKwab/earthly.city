@@ -1,7 +1,7 @@
-// src/api/ndk.ts
 import NDK, { NDKEvent, NDKFilter, NDKKind, NDKPrivateKeySigner } from '@nostr-dev-kit/ndk'
-import { FeatureCollection, DiscoveredFeature } from '../types'
 import { v4 as uuidv4 } from 'uuid'
+import { FeatureCollection } from './schema'
+import { DiscoveredFeature } from './types'
 
 export interface PublishFeatureOptions {
     longformNote?: {
@@ -22,7 +22,7 @@ export const subscribeToFeatures = (ndk: NDK, callback: (feature: DiscoveredFeat
                 const newFeature: DiscoveredFeature = {
                     id: event.id,
                     pubkey: event.pubkey,
-                    naddr: event.naddr,
+                    naddr: 'event.naddr',
                     createdAt: event.created_at ?? 0,
                     featureCollection: content,
                     name: event.tagValue('name'),
@@ -81,19 +81,15 @@ export const publishFeatureCollection = async (
         ['published_at', now.toString()],
     ]
 
-    console.log('EVENT EVENT EVENT', event)
-
     if (longformEvent) {
         event.tags.push(['e', longformEvent.id, 'longform'])
     }
-
-    ndk.addExplicitRelay('wss://relay.earthly.land')
 
     try {
         await event.publish()
         return event
     } catch (error) {
-        console.error('Error publishing feature collection event:', error.intendedRelaySet.ndk)
+        console.error('Error publishing feature collection event:', error)
         return null
     }
 }

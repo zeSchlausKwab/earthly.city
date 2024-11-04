@@ -1,10 +1,11 @@
-module github.com/yourusername/yourproject/apps/khatru
+module github.com/yourusername/earhly-land/apps/khatru
 
 go 1.23.1
 
 require (
-	github.com/fiatjaf/eventstore v0.11.0
+	github.com/fiatjaf/eventstore v0.11.3
 	github.com/fiatjaf/khatru v0.8.3
+	github.com/joho/godotenv v1.5.1
 )
 
 require (
@@ -18,7 +19,6 @@ require (
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.4.0 // indirect
 	github.com/jmoiron/sqlx v1.3.5 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/lib/pq v1.10.9 // indirect

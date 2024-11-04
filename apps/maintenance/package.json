@@ -1,0 +1,27 @@
+{
+  "name": "@earthly-land/maintenance",
+  "scripts": {
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.4",
+    "hono": "^4.6.8",
+    "@earthly-land/common": "workspace:*",
+    "@nostr-dev-kit/ndk": "2.10.5",
+    "@types/node": "^20.14.9",
+    "@types/pg": "8.11.10",
+    "dotenv": "^16.4.5",
+    "pg": "8.13.0",
+    "ts-node": "^10.9.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.2",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@earthly-land/eslint": "workspace:*",
+    "@earthly-land/prettier": "workspace:*",
+    "@types/node": "^20.11.17",
+    "tsx": "^4.7.1",
+    "@types/geojson": "7946.0.14"
+  }
+}

@@ -1,51 +1,42 @@
 'use client'
 
-import { Editor } from '@/components/plate-ui/editor'
-import { Plate, usePlateEditor } from '@udecode/plate-common/react'
-// import { Value } from '@udecode/slate'
+import { Value } from '@udecode/plate-common'
+import { TPlateEditor, usePlateEditor } from '@udecode/plate-common/react'
+import { useCallback } from 'react'
+import { Textarea } from './ui/textarea'
 
-export function PlateEditor({
-  initialValue,
-  onChange,
-  value,
-  readOnly,
-}: {
-  initialValue: any
-  onChange: (value: Value) => void
-  value: Value
+interface PlateEditorProps {
+  onChange: (value: string) => void
   readOnly: boolean
-}) {
-  // let editor = useRef(null)
+  initialValue?: string
+}
 
+export function PlateEditor({ onChange, readOnly, initialValue = '' }: PlateEditorProps) {
   const editor = usePlateEditor({
     id: 'plate-editor',
     plugins: [],
-    value: [
-      {
-        id: '1',
-        type: 'p',
-        children: [{ text: '' }],
-      },
-    ],
+    value: initialValue,
   })
-  const handleChangeAndDeserialize = (value: Value) => {
-    // const contentMd = serializeMd(editor, { nodes: value })
 
-    const editorValue = editor.api
+  const handleChange = useCallback(
+    ({ value }: { editor: TPlateEditor; value: Value }) => {
+      console.log('New value', value)
 
-    console.log('editorValue', editorValue)
-    onChange(value)
-  }
+      // const stringValue = JSON.stringify(newValue)
+      onChange(value[0].text as string)
+    },
+    [onChange]
+  )
 
   return (
-    <Plate
-      editor={editor}
-      readOnly={readOnly}
-      initialValue={initialValue}
-      value={value}
-      onChange={handleChangeAndDeserialize}
-    >
-      <Editor placeholder="Type your message here." />
-    </Plate>
+    <Textarea
+      value={initialValue}
+      onChange={(e) => {
+        onChange(e.target.value)
+      }}
+    />
+    // <Plate editor={editor} onChange={handleChange} readOnly={readOnly}>
+    //   <Editor placeholder="Type your message here." />
+    // </Plate>
   )
 }

@@ -1,4 +1,3 @@
-// src/types/index.ts
 import { Feature, FeatureCollection, GeoJsonProperties } from 'geojson'
 
 export interface DiscoveredFeature {
@@ -42,5 +41,3 @@ export interface User {
     about?: string
     picture?: string
 }
-
-export type { Feature, FeatureCollection, Geometry } from 'geojson'
