@@ -17,7 +17,6 @@ import Events from './Events'
 import { GeomanControl } from './GeomanControl'
 import { GeoSearchControlComponent } from './GeoSearch'
 import { MapLibreTileLayer } from './MapLibreTileLayer'
-import { getPolygonFromOsmId } from '@/lib/utils/geo'
 import OsmPolygons from './OsmPolygons'
 
 const svgIcon = L.divIcon({

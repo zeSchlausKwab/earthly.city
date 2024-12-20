@@ -5,32 +5,34 @@ import Header from '@/components/Header'
 import MapWrapper from '@/components/map/MapWrapper'
 import { TooltipProvider } from '@/components/plate-ui/tooltip'
 import RightSidebar from '@/components/RightSibebar'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { CSSProperties } from 'react'
 
 const queryClient = new QueryClient()
 
 export default function Home() {
-  return (
-    <div className="h-full">
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <div className="flex flex-col h-screen">
-            <Header />
-            <div className="flex flex-1 overflow-hidden">
-              <aside className="w-1/5 p-2">
-                <DiscoverySidebar />
-              </aside>
-              <main className="flex-1">
-                <MapWrapper />
-              </main>
-              <aside className="w-1/5">
-                <RightSidebar />
-              </aside>
-            </div>
-          </div>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </div>
-  )
+    return (
+        <div className="h-full">
+            <QueryClientProvider client={queryClient}>
+                <TooltipProvider>
+                    <SidebarProvider
+                        style={
+                            {
+                                '--sidebar-width': '20vw',
+                            } as CSSProperties
+                        }
+                    >
+                        <DiscoverySidebar />
+                        <SidebarInset>
+                            <Header />
+                            <MapWrapper />
+                        </SidebarInset>
+                        <RightSidebar />
+                    </SidebarProvider>
+                </TooltipProvider>
+            </QueryClientProvider>
+        </div>
+    )
 }

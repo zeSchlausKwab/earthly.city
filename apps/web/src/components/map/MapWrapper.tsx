@@ -1,8 +1,8 @@
-import dynamic from 'next/dynamic';
+import dynamic from 'next/dynamic'
 
 const MapWrapper = dynamic(() => import('./Map'), {
     ssr: false,
-    loading: () => <p>Loading map...</p>
-});
+    loading: () => <p>Loading map...</p>,
+})
 
-export default MapWrapper;
+export default MapWrapper
