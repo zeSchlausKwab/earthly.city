@@ -38,6 +38,9 @@ import { Plus } from 'lucide-react'
 import { Calendars } from './calendars'
 import { DatePicker } from './date-picker'
 import { NavUser } from './nav-user'
+import { publishFeatureCollection, updateFeatureCollection } from '@earthly-land/common'
+import { useAtom } from 'jotai'
+import { ndkAtom } from '@/lib/store'
 
 const RightSidebar: React.FC = () => {
     const {
@@ -56,6 +59,7 @@ const RightSidebar: React.FC = () => {
 
     const [showCollectionForm, setShowCollectionForm] = useState(false)
     const [selectedCollection, setSelectedCollection] = useState<string | null>(null)
+    const [ndk] = useAtom(ndkAtom)
 
     const handleCreateNew = (type: string) => {
         if (type === 'feature') {
@@ -81,9 +85,11 @@ const RightSidebar: React.FC = () => {
         let success = false
 
         if (featureCollection?.naddr) {
-            success = await saveChanges()
+            const res = await updateFeatureCollection(ndk, featureCollection)
+            success = Boolean(res)
         } else {
-            success = await publishFeatureEvent()
+            const res = await publishFeatureCollection(ndk, featureCollection)
+            success = Boolean(res)
         }
 
         if (success) {

@@ -1,5 +1,10 @@
 'use client'
 
+import React from 'react'
+import { Geoman, GmOptionsPartial } from '@geoman-io/maplibre-geoman-free'
+import '@geoman-io/maplibre-geoman-free/dist/maplibre-geoman.css'
+import 'maplibre-gl/dist/maplibre-gl.css'
+import ml from 'maplibre-gl'
 import { useFeatureCollection } from '@/lib/store/featureCollection'
 import { useFeatureDiscovery } from '@/lib/store/featureDiscovery'
 import { featuresErrorAtom, isLoadingFeaturesAtom, ndkAtom } from '@/lib/store'
@@ -8,24 +13,32 @@ import { useAtom } from 'jotai'
 import { useEffect, useCallback, useRef, useState } from 'react'
 import Map, { Layer, Source, Popup, NavigationControl, useMap } from 'react-map-gl/maplibre'
 import type { Map as MaplibreMap } from 'maplibre-gl'
-import { Geoman } from '@geoman-io/maplibre-geoman-free'
 import '@geoman-io/maplibre-geoman-free/dist/maplibre-geoman.css'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import ErrorBoundary from '../ErrorBoundary'
 import LoadingSpinner from '../LoadingSpinner'
+import type { FilterSpecification } from 'maplibre-gl'
 
-// Extend MapLibre's Map type to include Geoman properties
 declare module 'maplibre-gl' {
     interface Map {
         pm: any
     }
 }
 
+interface GeomanOptions {
+    drawMode?: boolean
+    editMode?: boolean
+    dragMode?: boolean
+    cutMode?: boolean
+    removalMode?: boolean
+    rotateMode?: boolean
+}
+
 const GeomanControls: React.FC = () => {
     const { current: map } = useMap()
     const { createFeature, updateFeature, deleteFeature } = useFeatureCollection()
     const [isMapLoaded, setIsMapLoaded] = useState(false)
-    const geomanRef = useRef<any>(null)
+    const geomanRef = useRef<Geoman | null>(null)
 
     useEffect(() => {
         if (!map) return
@@ -35,44 +48,86 @@ const GeomanControls: React.FC = () => {
 
         const handleLoad = () => {
             try {
-                // Initialize Geoman only if it hasn't been initialized
                 if (!mapInstance.pm) {
-                    const geomanInstance = new Geoman(mapInstance)
+                    console.log('Initializing Geoman...')
+                    // Initialize with minimal options
+                    const gmOptions: GmOptionsPartial = {
+                        drawMode: true,
+                        editMode: true,
+                        removalMode: true,
+                        drawStyles: {
+                            polygon: {
+                                color: '#3388ff',
+                                fillColor: '#3388ff',
+                                fillOpacity: 0.2,
+                            },
+                            line: {
+                                color: '#3388ff',
+                                weight: 3,
+                            },
+                        },
+                    }
+
+                    // Initialize Geoman
+                    const geomanInstance = new Geoman(mapInstance, gmOptions)
                     geomanRef.current = geomanInstance
                     mapInstance.pm = geomanInstance
+
+                    // Add the toolbar
+                    mapInstance.pm.Toolbar.createCustomControl({
+                        name: 'drawPolygon',
+                        block: 'draw',
+                        title: 'Draw a polygon',
+                        onClick: () => {
+                            console.log('Starting polygon draw mode')
+                            mapInstance.pm.Draw.start({ shape: 'Polygon' })
+                        },
+                    })
+
+                    mapInstance.pm.Toolbar.createCustomControl({
+                        name: 'drawLine',
+                        block: 'draw',
+                        title: 'Draw a line',
+                        onClick: () => {
+                            console.log('Starting line draw mode')
+                            mapInstance.pm.Draw.start({ shape: 'Line' })
+                        },
+                    })
+
+                    mapInstance.pm.Toolbar.createCustomControl({
+                        name: 'drawMarker',
+                        block: 'draw',
+                        title: 'Place a marker',
+                        onClick: () => {
+                            console.log('Starting marker draw mode')
+                            mapInstance.pm.Draw.start({ shape: 'Marker' })
+                        },
+                    })
+
+                    // Add debug logging for Geoman events
+                    mapInstance.on('pm:drawstart', (e) => console.log('Drawing started:', e))
+                    mapInstance.on('pm:drawend', (e) => console.log('Drawing ended:', e))
+                    mapInstance.on('pm:create', (e) => console.log('Feature created:', e))
+
+                    console.log('Geoman initialized successfully')
                 }
 
-                // Enable drawing controls with only the basic features
-                mapInstance.pm.addControls({
-                    position: 'topleft',
-                    drawMarker: true,
-                    drawPolyline: true,
-                    drawPolygon: true,
-                    editMode: true,
-                    dragMode: false,
-                    removalMode: true,
-                    drawCircle: false,
-                    drawRectangle: false,
-                    drawCircleMarker: false,
-                    cutPolygon: false,
-                    rotateMode: false,
-                })
-
                 setIsMapLoaded(true)
-                console.log('Geoman initialized successfully')
             } catch (error) {
                 console.error('Error initializing Geoman:', error)
             }
         }
 
         if (mapInstance.loaded()) {
+            console.log('Map already loaded, initializing immediately')
             handleLoad()
         } else {
-            mapInstance.on('load', handleLoad)
+            console.log('Map not loaded, waiting for load event')
+            mapInstance.once('load', handleLoad)
         }
 
         return () => {
-            if (mapInstance && mapInstance.loaded()) {
+            if (mapInstance) {
                 mapInstance.off('load', handleLoad)
                 if (mapInstance.pm) {
                     try {
@@ -92,45 +147,55 @@ const GeomanControls: React.FC = () => {
         if (!mapInstance || !mapInstance.pm) return
 
         try {
-            // Event handlers
-            const handleCreate = (e: any) => {
-                if (!e.feature) return
-                // Add ID to feature if missing
-                if (!e.feature.properties) {
-                    e.feature.properties = {}
+            const handleCreate = (e: { feature: Feature }) => {
+                console.log('pm:create event fired:', e)
+                if (!e.feature) {
+                    console.warn('No feature in create event')
+                    return
                 }
-                if (!e.feature.properties.id) {
-                    e.feature.properties.id = crypto.randomUUID()
+
+                const feature = e.feature
+                if (!feature.properties) {
+                    feature.properties = {}
                 }
-                console.log('Created feature:', e.feature)
-                createFeature(e.feature)
+                if (!feature.properties.id) {
+                    feature.properties.id = crypto.randomUUID()
+                }
+
+                console.log('Creating feature with properties:', feature.properties)
+                console.log('Feature geometry:', feature.geometry)
+
+                createFeature(feature)
             }
 
-            const handleEdit = (e: any) => {
+            const handleEdit = (e: { feature: Feature }) => {
                 if (!e.feature) return
-                // Ensure feature has ID
-                if (!e.feature.properties?.id) {
-                    e.feature.properties = {
-                        ...e.feature.properties,
+
+                const feature = e.feature
+                if (!feature.properties?.id) {
+                    feature.properties = {
+                        ...feature.properties,
                         id: crypto.randomUUID(),
                     }
                 }
-                console.log('Edited feature:', e.feature)
-                updateFeature(e.feature)
+
+                console.log('updating feature', feature)
+                updateFeature(feature)
             }
 
-            const handleRemove = (e: any) => {
-                if (!e.feature || !e.feature.properties?.id) return
-                console.log('Removed feature:', e.feature)
+            const handleRemove = (e: { feature: Feature }) => {
+                if (!e.feature?.properties?.id) return
+                console.log('deleting feature', e.feature)
                 deleteFeature(e.feature.properties.id)
             }
 
-            // Attach event listeners
+            // Add event listeners
             mapInstance.on('pm:create', handleCreate)
             mapInstance.on('pm:edit', handleEdit)
             mapInstance.on('pm:remove', handleRemove)
 
             return () => {
+                // Remove event listeners
                 mapInstance.off('pm:create', handleCreate)
                 mapInstance.off('pm:edit', handleEdit)
                 mapInstance.off('pm:remove', handleRemove)
@@ -157,7 +222,6 @@ const MapContent = () => {
 
     useEffect(() => {
         if (ndk) {
-            console.log('Starting subscription with NDK:', ndk)
             startSubscription()
             return () => stopSubscription()
         }
@@ -205,7 +269,7 @@ const MapContent = () => {
         }
 
         const layerIdBase = `${feature.properties.id}-${feature.geometry.type.toLowerCase()}`
-        console.log('Rendering layer:', { layerIdBase, sourceId, feature })
+        const featureFilter: FilterSpecification = ['==', ['get', 'id'], feature.properties.id]
 
         switch (feature.geometry.type) {
             case 'Point':
@@ -215,6 +279,7 @@ const MapContent = () => {
                         id={layerIdBase}
                         source={sourceId}
                         type="circle"
+                        filter={featureFilter}
                         layout={{
                             visibility: 'visible',
                         }}
@@ -234,6 +299,7 @@ const MapContent = () => {
                         id={layerIdBase}
                         source={sourceId}
                         type="line"
+                        filter={featureFilter}
                         layout={{
                             visibility: 'visible',
                             'line-cap': 'round',
@@ -248,18 +314,19 @@ const MapContent = () => {
             case 'Polygon':
             case 'MultiPolygon':
                 return (
-                    <>
+                    <React.Fragment key={layerIdBase}>
                         <Layer
                             key={`${layerIdBase}-fill`}
                             id={`${layerIdBase}-fill`}
                             source={sourceId}
                             type="fill"
+                            filter={featureFilter}
                             layout={{
                                 visibility: 'visible',
                             }}
                             paint={{
                                 'fill-color': color,
-                                'fill-opacity': 0.5,
+                                'fill-opacity': 0.3,
                             }}
                         />
                         <Layer
@@ -267,6 +334,7 @@ const MapContent = () => {
                             id={`${layerIdBase}-outline`}
                             source={sourceId}
                             type="line"
+                            filter={featureFilter}
                             layout={{
                                 visibility: 'visible',
                                 'line-cap': 'round',
@@ -277,7 +345,7 @@ const MapContent = () => {
                                 'line-width': 2,
                             }}
                         />
-                    </>
+                    </React.Fragment>
                 )
             default:
                 console.warn('Unsupported geometry type:', feature.geometry.type)
@@ -287,8 +355,6 @@ const MapContent = () => {
 
     if (isLoadingFeatures) return <LoadingSpinner />
     if (featuresError) return <div>Error loading features: {featuresError}</div>
-
-    console.log('Discovered features:', discoveredFeatures)
 
     return (
         <Map
@@ -320,12 +386,11 @@ const MapContent = () => {
 
             <GeomanControls />
 
-            {discoveredFeatures.map((feature) => {
-                console.log('Rendering feature collection:', feature)
+            {discoveredFeatures.map((feature, index) => {
+                console.log('rendering feature', feature)
                 return (
-                    <Source key={feature.id} id={`source-${feature.id}`} type="geojson" data={feature.featureCollection}>
+                    <Source key={index} id={`source-${feature.id}`} type="geojson" data={feature.featureCollection}>
                         {feature.featureCollection.features.map((feat) => {
-                            console.log('Rendering feature:', feat)
                             return renderLayer(feat, `source-${feature.id}`)
                         })}
                     </Source>

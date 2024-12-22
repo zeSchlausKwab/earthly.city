@@ -148,6 +148,8 @@ export const useFeatureCollection = () => {
     const publishFeatureEvent = async () => {
         if (!ndk || !featureCollection) return false
 
+        console.log('publishing feature collection', featureCollection)
+
         try {
             await publishFeatureCollection(ndk, featureCollection)
             return true

@@ -2,6 +2,7 @@
 
 import DiscoverySidebar from '@/components/DiscoverySidebar'
 import Header from '@/components/Header'
+import GmMap, { GmEvent } from '@/components/map/GMMap'
 import MapWrapper from '@/components/map/MapWrapper'
 import { TooltipProvider } from '@/components/plate-ui/tooltip'
 import RightSidebar from '@/components/RightSibebar'
@@ -13,6 +14,10 @@ import { CSSProperties } from 'react'
 const queryClient = new QueryClient()
 
 export default function Home() {
+    const handleEvent = (event: GmEvent) => {
+        console.log(event)
+    }
+
     return (
         <div className="h-full">
             <QueryClientProvider client={queryClient}>
@@ -27,7 +32,7 @@ export default function Home() {
                         <DiscoverySidebar />
                         <SidebarInset>
                             <Header />
-                            <MapWrapper />
+                            <GmMap handleEvent={handleEvent} />
                         </SidebarInset>
                         <RightSidebar />
                     </SidebarProvider>
